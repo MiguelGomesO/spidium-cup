@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.linha-horizontal {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(to right, #a855f7, #ec4899);
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+}
+
+.linha-horizontal {
+    animation: pulseline 2s infinite alternate;
+}
+
+.linha-horizontal {
+    border-radius: 2px;
+}
+
+@keyframes pulseline {
+    from { opacity: 0.4;}
+    to { opacity: 1;}
+}
+
+.linha-vertical {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(to bottom, #a855f7, #ec4899);
+    box-shadow: 0 0 25px rgba(236, 72, 153, 0.6);
+}
+
+.linha-vertical {
+    border-radius: 2px;
+}
+
+.linha-vertical {
+    transform: translateY(0);
+}
+
+.linha-vertical {
+    z-index: 0;
+}
+
+.card-glow {
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+}
+
+.card-hover:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(236, 72, 153, 0.6);
+}

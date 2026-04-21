@@ -1,0 +1,56 @@
+# ========================
+# Laravel
+# ========================
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+
+# ========================
+# Env & configs sensíveis
+# ========================
+.env
+.env.*
+!.env.example
+auth.json
+
+# ========================
+# Cache & arquivos temporários
+# ========================
+.phpunit.result.cache
+.phpunit.cache
+.phpactor.json
+*.log
+
+# ========================
+# IDEs / Editors
+# ========================
+/.idea
+/.vscode
+/.fleet
+/.zed
+
+# ========================
+# OS files
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Laravel Sail / Homestead
+# ========================
+Homestead.json
+Homestead.yaml
+
+# ========================
+# Build / Misc
+# ========================
+npm-debug.log
+yarn-error.log
