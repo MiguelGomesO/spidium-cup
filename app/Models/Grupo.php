@@ -4,31 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Campeonato extends Model
+class Grupo extends Model
 {
     protected $fillable = [
         'nome',
-        'formato',
-        'qtd_times',
+        'campeonato_id',
     ];
 
-    public function campeonato()
+    public function campeonat()
     {
         return $this->belongsTo(Campeonato::class);
-    }
-
-    public function partidas()
-    {
-        return $this->hasMany(Partida::class);
     }
 
     public function times()
     {
         return $this->belongsToMany(Time::class);
-    }
-
-    public function grupos()
-    {
-        return $this->hasMany(Grupo::class);
     }
 }

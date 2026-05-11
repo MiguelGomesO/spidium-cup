@@ -14,7 +14,7 @@ class Time extends Model
         'estadio'
     ];
 
-    public function campeonato()
+    public function campeonatos()
     {
         return $this->belongsToMany(Campeonato::class);
     }
@@ -32,5 +32,10 @@ class Time extends Model
     public function partidasFora()
     {
         return $this->hasMany(Partida::class, 'time_fora_id');
+    }
+
+    public function grupos()
+    {
+        return $this->belongsToMany(Time::class);
     }
 }

@@ -11,8 +11,10 @@ class EventosPartida extends Model
     protected $fillable = [
         'partida_id',
         'jogador_id',
+        'assistencia_id',
         'tipo',
-        'minuto'
+        'minuto',
+        'time_id',
     ];
 
     public function jogador()
@@ -23,5 +25,10 @@ class EventosPartida extends Model
     public function partida()
     {
         return $this->belongsTo(Partida::class);
+    }
+
+    public function assistencia()
+    {
+        return $this->belongsTo(Jogador::class, 'assistencia_id');
     }
 }

@@ -87,6 +87,13 @@ class PartidaController extends Controller
 
     public function show(Partida $partida)
     {
+        $partida->load([
+            'timeCasa.jogadores',
+            'timeFora.jogadores',
+            'eventos.jogador',
+            'eventos.assistencia'
+        ]);
+
         return view('partidas.show', compact('partida'));
     }
 }
