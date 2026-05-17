@@ -96,4 +96,12 @@ class PartidaController extends Controller
 
         return view('partidas.show', compact('partida'));
     }
+
+    public function finalizar(Partida $partida) {
+        $partida->update([
+            'finalizada' => true,
+        ]);
+
+        return back()->with('success', 'Partida finalizada com sucesso');
+    }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CampeonatoController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventosPartidaController;
 use App\Http\Controllers\JogadorController;
 use App\Http\Controllers\PartidaController;
@@ -35,6 +36,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/campeonatos/{campeonato}/times', [CampeonatoController::class, 'adicionarTime'])->name('campeonatos.times.store');
     Route::post('/campeonatos/{campeonato}/gerar-grupos', [CampeonatoController::class, 'gerarGrupos'])->name('campeonatos.gerar-grupos');
     Route::post('/campeonatos/{campeonato}/gerar-chaveamento', [CampeonatoController::class, 'gerarChaveamento'])->name('campeonatos.gerar-chaveamento');
+    Route::post('/campeonatos/{campeonato}/grupos', [CampeonatoController::class, 'storeGrupo'])->name('campeonatos.grupos.store');
+    Route::post('/grupos/{grupo}/times', [CampeonatoController::class, 'adicionarTimeGrupo'])->name('grupos.times.store');
+    Route::delete('/grupos/{grupo}/times/{time}', [CampeonatoController::class, 'removerTimeGrupo'])->name('grupos.times.destroy');
+    Route::delete('/grupos/{grupo}', [CampeonatoController::class, 'destroyGrupo'])->name('grupos.destroy');
+    Route::post('/campeonatos/{campeonato}/gerar-partidas-grupos', [CampeonatoController::class, 'gerarPartidasGrupos'])->name('campeonatos.gerar-partidas-grupos');
+    Route::patch('/partidas/{partida}/finalizar', [PartidaController::class, 'finalizar'])->name('partidas.finalizar');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 

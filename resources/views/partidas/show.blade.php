@@ -5,6 +5,7 @@
 <div class="p-6 max-w-4xl mx-auto"
     x-data="{
         openGol: false,
+        openFinalizar: false,
         time: 'casa',
         tipo: 'gol',
         jogador_id: '',
@@ -80,6 +81,11 @@
             </div>
 
             <div class="text-4xl font-bold text-center">
+                @if ($partida->finalizada)
+                    <div class="text-center mb-4">
+                        <span class="bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-1 rounded-full text-xs font-bold tracking-wide">Finalizada</span>
+                    </div>
+                @endif
                 <span x-text="golsCasa"></span>
                 <span class="text-white/50">x</span>
                 <span x-text="golsFora"></span>
@@ -101,9 +107,13 @@
             {{ $partida->campeonato->nome ?? 'Amistoso' }}
         </div>
 
-        <div class="flex gap-3">
+        <div x-show="!{{ $partida->finalizada ? 'true' : 'false' }}" class="flex gap-3 mt-4">
             <button @click="openGol = true" class="bg-green-600 px-4 py-2 rounded">
                 📊 Adicionar Eventos
+            </button>
+
+            <button @click="openFinalizar = true" class="bg-red-600 hover:bg-red-700 transition px-4 py-2 rounded font-medium">
+                🏁 Finalizar Partida
             </button>
         </div>
 
@@ -306,6 +316,42 @@
 
             </div>
 
+        </div>
+    </template>
+    <template x-if="openFinalizar">
+        <div class="fixed inset-0 z-[99999] flex items-center justify-center">
+            <div @click="openFinalizar = false" class="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
+
+            <div class="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#020617] p-6 shadow-2xl">
+                <div class="text-center">
+                    <div class="text-5xl mb-3">
+                        🏁
+                    </div>
+
+                    <h2 class="text-xl font-bold mb-2">
+                        Finalizar partida?
+                    </h2>
+
+                    <p class="text-sm text-white/50 mb-6">
+                        Após finalizar, os eventos e o placar não poderão mais ser alterados.
+                    </p>
+
+                    <div class="flex gap-3">
+                        <button @click="openFinalizar = false" class="flex-1 bg-white/10 hover:bg-white/20 transition rounded-xl py-3">
+                            Cancelar
+                        </button>
+
+                        <form method="POST" action="{{ route('partidas.finalizar', $partida) }}" class="flex-1">
+                            @csrf
+                            @method('PATCH')
+
+                            <button class="w-full bg-red-600 hover:bg-red-700 transition rounded-xl py-3 font-semibold">
+                                Finalizar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </template>
 </div>

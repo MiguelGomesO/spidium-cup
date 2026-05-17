@@ -86,7 +86,7 @@ class EventosPartidaController extends Controller
 
     public function atualizarPlacar($partidaId)
     {
-        $partida = \App\Models\Partida::with('eventos')->find($partidaId);
+        $partida = Partida::with('eventos')->find($partidaId);
 
         $golsTimeA = $partida->eventos->where('tipo', 'gol')->where('time_id', 'casa')->count();
 

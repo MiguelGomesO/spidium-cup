@@ -27,14 +27,15 @@
                         </div>
                     </div>
 
-                    @if ($campeonato->times->count() >= 8)
-                        <form method="POST" action="{{ route('campeonatos.gerar-grupos', $campeonato) }}">
-                            @csrf
-
-                            <button class="px-5 py-3 rounded-2xl bg-gradient-to-r from-orange-500 via-purple-500 to-blue-500 font-semibold hover:opacity-90 transition">
-                                Gerar Partidas
-                            </button>
-                        </form>
+                    @if ($campeonato->times->count() >= 4)
+                    <div class="flex gap-3">
+                        <a
+                            href="{{ route('campeonatos.edit', $campeonato) }}"
+                            class="px-5 py-3 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 transition"
+                        >
+                            Gerar Grupos
+                        </a>
+                    </div>
                     @endif
                 </div>
             </div>

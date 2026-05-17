@@ -20,6 +20,6 @@ class Jogador extends Model
     }
 
     public function eventos() {
-        return $this->hasMany(EventosPartida::class);
+        return $this->hasMany(EventosPartida::class, 'jogador_id');
     }
 }

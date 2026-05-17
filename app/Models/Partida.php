@@ -12,7 +12,8 @@ class Partida extends Model
         'time_fora_id',
         'gols_casa',
         'gols_fora',
-        'data'
+        'finalizada',
+        'data',
     ];
 
     public function timeCasa()
@@ -33,5 +34,44 @@ class Partida extends Model
     public function campeonato()
     {
         return $this->belongsTo(Campeonato::class);
+    }
+
+    public function proximaPartida()
+    {
+        return $this->belongsTo(Partida::class, 'proxima_partida_id');
+    }
+
+    public function vencedor()
+    {
+        if ($this->gols_casa > $this->gols_fora) {
+            return $this->timeCasa;
+        }
+
+        if ($this->gols_fora > $this->gols_casa) {
+            return $this->timeFora;
+        }
+
+        return null;
+    }
+
+    public function avancarVencedor()
+    {
+        $vencedor = $this->vencedor();
+
+        if (!$vencedor || $this->proximaPartida) {
+            return;
+        }
+
+        $proxima = $this->proximaPartida;
+
+        if (!$proxima->time_casa_id) {
+            $proxima->update([
+                'time_casa_id' => $vencedor->id
+            ]);
+        } elseif (!$proxima->time_fora_id) {
+            $proxima->update([
+                'time_fora_id' => $vencedor->id
+            ]);
+        }
     }
 }
