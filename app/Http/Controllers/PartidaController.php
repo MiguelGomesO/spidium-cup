@@ -37,45 +37,90 @@ class PartidaController extends Controller
 
     public function index()
     {
-        $partidas = Partida::with(['campeonato', 'timeCasa', 'timeFora'])->get();
+        $partidas = Partida::with(['campeonato', 'timeCasa', 'timeFora'])
+            ->orderByDesc('data')
+            ->get();
+
         return view('partidas.index', compact('partidas'));
     }
 
     public function create()
     {
-        $campeonatos = Campeonato::all();
-        $times = Time::all();
+        $campeonatos = Campeonato::orderBy('nome')->get();
+        $times = Time::orderBy('nome')->get();
 
-        return view('partidas.create', compact('campeonatos', 'times'));
+        return view('partidas.create', [
+            'campeonatos' => $campeonatos,
+            'times' => $times,
+            'timesForSelect' => $this->timesForSelect($times),
+        ]);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'campeonato_id' => 'nullable|exists:campeonatos,id',
             'time_casa_id' => 'required|different:time_fora_id|exists:times,id',
-            'time_fora_id' => 'required|different:time_id_casa|exists:times,id',
+            'time_fora_id' => 'required|different:time_casa_id|exists:times,id',
             'data' => 'required|date',
         ]);
 
-        $partida = Partida::create($request->all());
+        if ($request->boolean('amistoso')) {
+            $data['campeonato_id'] = null;
+        }
 
-        return redirect()->route('partidas.show', $partida);
+        $partida = Partida::create($data);
+
+        return redirect()
+            ->route('partidas.show', $partida)
+            ->with('success', 'Partida criada! Registre os gols na tela ao vivo.');
     }
 
     public function edit(Partida $partida)
     {
-        $campeonatos = Campeonato::all();
-        $times = Time::all();
+        $partida->load(['campeonato', 'timeCasa', 'timeFora']);
+        $campeonatos = Campeonato::orderBy('nome')->get();
+        $times = Time::orderBy('nome')->get();
 
-        return view('partidas.edit', compact('partida', 'campeonatos', 'times'));
+        return view('partidas.edit', [
+            'partida' => $partida,
+            'campeonatos' => $campeonatos, 
+            'times' => $times,
+            'timesForSelect' => $this->timesForSelect($times),
+        ]);
     }
 
     public function update(Request $request, Partida $partida)
     {
-        $partida->update($request->all());
+        $data = $request->validate([
+            'campeonato_id' => 'nullable|exists:campeonatos,id',
+            'time_casa_id' => 'required|different:time_fora_id|exists:times,id',
+            'time_fora_id' => 'required|different:time_casa_id|exists:times,id',
+            'data' => 'required|date',
+        ]);
 
-        return redirect()->route('partidas.index')->with('success', 'Partida atualizada');
+        if ($request->boolean('amistoso')) {
+            $data['campeonato_id'] = null;
+        }
+
+        if ($partida->finalizada) {
+            unset($data['time_casa_id'], $data['time_fora_id']);
+        }
+
+        $partida->update($data);
+
+        return redirect()
+            ->route('partidas.show', $partida)
+            ->with('success', 'Partida atualizada com sucesso.');
+    }
+
+    private function timesForSelect($times)
+    {
+        return $times->map(fn ($time) => [
+            'id' => $time->id,
+            'nome' => $time->nome,
+            'logo' => $time->logo ? asset('storage/' . $time->logo) : null,
+        ])->values();
     }
 
     public function destroy(Partida $partida)

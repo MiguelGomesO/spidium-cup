@@ -1,400 +1,888 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 
-<div class="min-h-screen bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#020617] p-6">
-    <div class="max-w-7xl mx-auto">
-        <div class="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-6 mb-6">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div>
-                    <div class="flex items-center gap-3">
-                        <h1 class="text-4xl font-bold bg-gradient-to-r from-orange-400 via-purple-500 to-blue-500 bg-clip-text text-transparent">
-                            {{ $campeonato->nome }}
-                        </h1>
+@if (session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', () => showToast(@json(session('success')), 'success'));
+    </script>
+@endif
 
-                        <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-semibold">
-                            Grupos
-                        </span>
-                    </div>
+@if ($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', () => showToast(@json($errors->first()), 'error'));
+    </script>
+@endif
 
-                    <div class="flex gap-6 mt-4 text-white/60 text-sm">
-                        <span>
-                            ⚽ {{ $campeonato->times->count() }}/{{ $campeonato->qtd_times }} times
-                        </span>
+<div x-data="{ tab: @js(request('tab', 'visao-geral')) }" class="space-y-8">
+    <div class="relative overflow-hidden rounded-3xl border border-brand-ice/10 bg-brand-surface p-8 lg:p-10">
+        <div class="absolute inset-0 bg-gradient-to-br from-brand-orange/10 via-brand-purple/10"></div>
 
-                        <span>
-                            🏆 {{ $campeonato->grupos->count() }} grupos
-                        </span>
-                    </div>
+        <div class="absolute -top-20 -right-20 w-72 h-72 bg-brand-purple/20 blur-3xl rounded-full"></div>
+
+        <div class="absolute -bottom-20 -left-20 w-72 h-72 bg-brand-orange/20 blur-3xl rounded-full"></div>
+
+        <div class="relative z-20 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-8">
+            <div>
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="px-4 py-1 rounded-full bg-brand-ice/10 border border-brand-ice/10 text-xs text-brand-ice/70">
+                        Campeonato
+                    </span>
+
+                    <span class="px-4 py-1 rounded-full bg-brand-orange/20 border border-brand-orange/20 text-xs text-brand-orange-sand capitalize">
+                        {{ $campeonato->formato }}
+                    </span>
                 </div>
 
-                <a href="{{ route('campeonatos.show', $campeonato) }}" class="px-5 py-3 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 transition">
-                    ← Voltar
-                </a>
-            </div>
-            <div class="mt-4 flex justify-between">
-                @if ($campeonato->partidas->isEmpty())
-                    <form method="POST" action="{{ route('campeonatos.gerar-partidas-grupos', $campeonato) }}">
-                        @csrf
+                <h1 class="text-4xl lg:text-6xl font-black text-brand-gradient bg-clip-text text-transparent">
+                    {{ $campeonato->nome }}
+                </h1>
 
-                        <button class="px-5 py-3 rounded-2xl bg-gradient-to-r from-orange-500 via-purple-500 to-blue-500 font-semibold hover:opacity-90 transition">
-                            Gerar Partidas
-                        </button>
-                    </form>
-                @endif
-                @if ($campeonato->grupos->isEmpty())
-                    <form method="POST" action="{{ route('campeonatos.gerar-grupos', $campeonato) }}">
-                        @csrf
-
-                        <button class="px-5 py-3 rounded-2xl bg-gradient-to-r from-orange-500 via-purple-500 to-blue-500 font-semibold hover:opacity-90 transition">
-                            Gerar grupos automático
-                        </button>
-                    </form>
-                @endif
+                <p class="mt-4 text-brand-ice/60 max-w-2xl leading-relaxed">
+                    Central de gerenciamento do campeonato
+                </p>
             </div>
 
+            <div class="grid grid-cols-2 gap-4 w-full xl:w-[420px]">
+                <div class="bg-brand-ice/5 border border-brand-ice/10 rounded-2xl p-5">
+                    <p class="text-sm text-brand-ice/50">
+                        Times
+                    </p>
 
-        </div>
-
-
-
-        @if ($campeonato->grupos->isEmpty())
-        <div class="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-10 mb-6">
-            <form method="POST" action="{{ route('campeonatos.grupos.store', $campeonato) }}" class="flex items-end gap-4">
-                @csrf
-                <div class="flex-1">
-                    <label class="text-sm text-white/60">
-                        Nome do Grupo
-                    </label>
-
-                    <input type="text" name="nome" placeholder="Ex: Grupo A" class="w-full mt-2 p-3 rounded-2xl bg-black/40 border border-white/10 outline-none">
+                    <h2 class="text-4xl font-black mt-2">
+                        {{ $campeonato->times->count() }}
+                    </h2>
                 </div>
 
-                <button type="submit" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-orange-500 via-purple-500 to-blue-500 font-semibold hover:opacity-90 transition">
-                    Criar Grupo
-                </button>
-            </form>
+                <div class="bg-brand-ice/5 border border-brand-ice/10 rounded-2xl p-5">
+                    <p class="text-sm text-brand-ice/50">
+                        Grupos
+                    </p>
+
+                    <h2 class="text-4xl font-black mt-2">
+                        {{ $campeonato->grupos->count() }}
+                    </h2>
+                </div>
+
+                <div class="bg-brand-ice/5 border border-brand-ice/10 rounded-2xl p-5">
+                    <p class="text-sm text-brand-ice/50">
+                        Partidas
+                    </p>
+
+                    <h2 class="text-4xl font-black mt-2">
+                        {{ $campeonato->partidas->count() }}
+                    </h2>
+                </div>
+
+                <div class="bg-brand-ice/5 border border-brand-ice/10 rounded-2xl p-5">
+                    <p class="text-sm text-brand-ice/50">
+                        Finalizadas
+                    </p>
+
+                    <h2 class="text-4xl font-black mt-2">
+                        {{ $campeonato->partidas->where('finalizada', true)->count() }}
+                    </h2>
+                </div>
+            </div>
         </div>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+        <button @click="tab = 'visao-geral'" :class="tab === 'visao-geral' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'" class="px-5 py-3 rounded-2xl transition font-medium">
+            🏆 Visão Geral
+        </button>
+
+        @if ($campeonato->formato === 'grupos')
+            <button @click="tab = 'grupos'" :class="tab === 'grupos' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'" class="px-5 py-3 rounded-2xl transition font-medium">
+                👥 Grupos
+            </button>
         @endif
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            @php
-                $timesUsados = $campeonato->grupos
-                    ->flatMap(fn ($grupo) => $grupo->times)
-                    ->pluck('id')
-                    ->toArray();
-            @endphp
-            @foreach ($campeonato->grupos as $grupo)
-            <div class="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl overflow-hidden">
-                <div class="px-6 py-4 border-b border-white/10 bg-white/[0.03] flex items-center justify-between">
-                    <h2 class="text-xl font-bold">
-                        {{ $grupo->nome }}
-                    </h2>
+        @if ($campeonato->formato === 'mata_mata')
+            <button @click="tab = 'mata-mata'" :class="tab === 'mata-mata' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'">
+                🏆 Mata-Mata
+            </button>
+        @endif
 
-                    @if ($grupo->times->isEmpty())
-                        <form method="POST" action="{{ route('grupos.destroy', $grupo) }}">
-                            @csrf
-                            @method('DELETE')
+        <button @click="tab = 'partidas'" :class="tab === 'partidas' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'" class="px-5 py-3 rounded-2xl transition font-medium">
+            ⚽ Partidas
+        </button>
 
-                            <button class="text-red-400 hover:text-red-300 transition">
-                                ✕
-                            </button>
-                        </form>
+        @if ($campeonato->formato === 'liga')
+            <button @click="tab = 'classificacao'" :class="tab === 'classificacao' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'" class="px-5 py-3 rounded-2xl transition font-medium">
+                📊 Classificação
+            </button>
+        @endif
 
-                    @else
-                        <div class="text-xs text-white/30" title="Grupo possui times">
-                            🔒
-                        </div>
-                    @endif
+        <button @click="tab = 'estatisticas'" :class="tab === 'estatisticas' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'" class="px-5 py-3 rounded-2xl transition font-medium">
+            🔥 Estatísticas
+        </button>
+    </div>
 
-                </div>
-
-                <div class="p-4 border-b border-white/5">
-                    <form method="POST" action="{{ route('grupos.times.store', $grupo) }}" class="flex gap-3">
-                        @csrf
-                        <div
-                            x-data="{
-                                open: false,
-                                selected: null
-                            }"
-                            class="relative flex-1 z-50"
-                        >
-                            <input type="hidden" name="time_id" :value="selected?.id">
-
-                            <button type="button" @click="open = !open" class="w-full p-3 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-between">
-                                <template x-if="selected">
-                                    <div class="flex items-center gap-3">
-                                        <img :src="selected.logo" class="w-8 h-8 object-contain">
-
-                                        <span x-text="selected.nome" class="text-white"></span>
-                                    </div>
-                                </template>
-
-                                <template x-if="!selected">
-                                    <span class="text-white/40">Selecionar time</span>
-                                </template>
-
-                                <span class="text-white/50">
-                                    ▼
-                                </span>
-                            </button>
-
-                            <div
-                                x-show="open"
-                                x-transition
-                                @click.outside="open = false"
-                                class="absolute z-[999] mt-2 w-full rounded-2xl bg-[#0f172a] border border-white/10 overflow-hidden shadow-2xl max-h-72 overflow-y-auto"
-                            >
-                                @foreach ($campeonato->times->whereNotIn('id', $timesUsados) as $time)
-                                    <button
-                                        type="button"
-                                        @click="
-                                            selected= @js([
-                                                'id' => $time->id,
-                                                'nome' => $time->nome,
-                                                'logo' => asset('storage/' . $time->logo),
-                                            ]);
-                                            open = false;
-                                        "
-                                        class="w-full px-4 py-3 hover:bg-white/5 flex items-center gap-3 text-left transition"
-                                    >
-                                        <img src="{{ asset('storage/' . $time->logo) }}" class="w-8 h-8 object-contain">
-
-                                        <span class="text-white">{{ $time->nome }}</span>
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <button type="submit" class="px-4 rounded-full bg-green-400 font-semibold hover:opacity-90 hover:bg-green-600 transition">
-                            +
-                        </button>
-                    </form>
-                </div>
-
-                <div class="p-4 space-y-3">
-                    @forelse ($grupo->times as $time)
-                    <div class="bg-black/20 border border-white/5 rounded-2xl p-3 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <img src="{{ asset('storage/' . $time->logo) }}" class="w-12 h-12 object-contain">
-
-                            <div>
-                                <h3 class="font-semibold">
-                                    {{ $time->nome }}
-                                </h3>
-
-                                <p class="text-sm text-white/40">
-                                    Participante
-                                </p>
-                            </div>
-                        </div>
-
-                        @php
-                            $possuiPartidas = $campeonato->partidas->where('time_casa_id', $time->id)
-                                ->merge($campeonato->partidas->where('time_fora_id', $time->id))
-                                ->isNotEmpty();
-                        @endphp
-
-                        @if (!$possuiPartidas)
-                            <form method="POST" action="{{ route('grupos.times.destroy', [$grupo, $time]) }}">
-                                @csrf
-                                @method('DELETE')
-
-                                <button class="text-red-400 hover:text-red-300 transition">
-                                    ✕
-                                </button>
-                            </form>
-                        @else
-                            <div class="text-xs text-white/30" title="Time possui partidas geradas">
-                                🔒
-                            </div>
-                        @endif
-                    </div>
-                    @empty
-                    <div class="py-10 text-center text-white/40">
-                        Nenhum time no grupo
-                    </div>
-                    @endforelse
-                </div>
-            </div>
-            @endforeach
-        </div>
-
-        @if ($campeonato->partidas->isNotEmpty())
-            <div class="mt-8">
-                <div class="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-6">
+    <div x-show="tab === 'visao-geral'" x-transition>
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div class="xl:col-span-2 space-y-6">
+                <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-2xl font-bold">
-                            Partidas
-                        </h2>
+                        <div>
+                            <h2 class="text-xl font-bold">⚽ Últimas Partidas</h2>
 
-                        <span class="text-sm text-white/40">{{ $campeonato->partidas->count() }} jogos</span>
+                            <p class="text-sm text-brand-ice/50 mt-1">Jogos recentes do campeonato</p>
+                        </div>
                     </div>
 
                     <div class="space-y-4">
-                        @foreach ($campeonato->partidas as $partida)
-                            <div class="bg-black/20 border border-white/5 rounded-2xl p-4 hover:bg-white/[0.03] transition">
-                                <a href="{{ route('partidas.show', $partida) }}" class="block bg-black/20 border border-white/5 rounded-2xl p-4 hover:bg-white/[0.03] transition cursor-pointer">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-3 w-[40%]">
-                                            <img src="{{ asset('storage/' . $partida->timeCasa->logo) }}" class="w-12 h-12 object-contain">
+                        @foreach ($campeonato->partidas->where('finalizada', true)->take(5) as $partida)
+                            <a href="{{ route('partidas.show', $partida) }}" class="flex items-center justify-between bg-brand-ice/5 hover:bg-brand-ice/10 transition rounded-2xl p-4 border border-brand-ice/5">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <img src="{{ asset('storage/' . $partida->timeCasa->logo) }}" class="w-10 h-10 object-contain">
 
-                                            <span class="font-semibold">{{ $partida->timeCasa->nome }}</span>
-                                        </div>
-
-                                        <div class="text-center">
-                                            <div class="text-xl font-bold">
-                                                {{ $partida->gols_casa ?? 0 }}
-                                                x
-                                                {{ $partida->gols_fora ?? 0 }}
-                                            </div>
-
-                                            <div class="text-xs text-white/40 mt-1">
-                                                {{ \Carbon\Carbon::parse($partida->data)->format('d/m H:i') }}
-                                            </div>
-                                        </div>
-
-
-                                        <div class="flex items-center justify-end gap-3 w-[40%]">
-                                            <span class="font-semibold">{{ $partida->timeFora->nome }}</span>
-
-                                            <img src="{{ asset('storage/' . $partida->timeFora->logo) }}" class="w-12 h-12 object-contain">
-                                        </div>
+                                        <span class="font-medium">{{ $partida->timeCasa->nome }}</span>
                                     </div>
-                                </a>
+
+                                    <span class="text-brand-ice/30">
+                                        vs
+                                    </span>
+
+                                    <div class="flex items-center gap-3">
+                                        <img src="{{ asset('storage/' . $partida->timeFora->logo) }}" class="w-10 h-10 object-contain">
+
+                                        <span class="font-medium">{{ $partida->timeFora->nome }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="text-right">
+                                    <div class="text-xl font-black">
+                                        {{ $partida->gols_casa }} <span class="text-brand-ice/30">-</span> {{ $partida->gols_fora }}
+                                    </div>
+
+                                    <span class="text-xs text-brand-orange-sand">
+                                        Finalizada
+                                    </span>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
+                    <h2 class="text-xl font-bold mb-6">
+                        🔥 Artilheiros
+                    </h2>
+
+                    <div class="space-y-4">
+                        @foreach ($artilheiros as $jogador)
+                            <div class="flex items-center justify-between bg-brand-ice/5 rounded-2xl p-4 hover:bg-brand-ice/10">
+                                <div>
+                                    <p class="font-semibold">
+                                        {{ $jogador->nome }}
+                                    </p>
+
+                                    <p class="text-xs text-brand-ice/50">
+                                        {{ $jogador->time->nome }}
+                                    </p>
+                                </div>
+
+                                <span class="font-bold text-brand-orange-sand">
+                                    ⚽ {{ $jogador->gols }}
+                                </span>
                             </div>
                         @endforeach
                     </div>
                 </div>
             </div>
-        @endif
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-            <div class="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-6">
-                <h2 class="text-xl font-bold mb-6">
-                    ⚽ Artilheiros
-                </h2>
+        </div>
+    </div>
 
-                <div class="space-y-4">
-                    @forelse ($artilheiros as $art)
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <span class="font-semibold">
-                                    {{ $art->jogador->nome }}
-                                </span>
-                            </div>
+    @if ($campeonato->formato === 'grupos')
+        <div x-show="tab === 'grupos'" x-transition>
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+                <div class="xl:col-span-2 bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
+                    <h2 class="text-xl font-bold mb-2">Gerenciar Grupos</h2>
+                    <p class="text-sm text-brand-ice/50 mb-6">
+                        Crie grupos manualmente ou distribua os times automaticamente.
+                    </p>
 
-                            <span class="font-bold text-orange-300">
-                                {{ $art->gols }}
-                            </span>
-                        </div>
-                    @empty
-                        <p class="text-white/40 flex items-center justify-center py-10">
-                            Nenhum gol registrado
-                        </p>
-                    @endforelse
+                    <div class="flex flex-col sm:flex-row flex-wrap gap-3">
+                        @if ($campeonato->times->count() >= 4 && $campeonato->times->count() < $campeonato->qtd_times)
+                            <form
+                                method="POST"
+                                action="{{ route('campeonatos.gerar-grupos', $campeonato) }}"
+                                onsubmit="return confirm('Isso apagará os grupos atuais e redistribuirá todos os times. Continuar?')"
+                            >
+                                @csrf
+                                <button type="submit" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-brand-gradient font-semibold hover:opacity-90 transition">
+                                    🎲 Gerar Automaticamente
+                                </button>
+                            </form>
+                        @elseif ($campeonato->times->count() < 4)
+                            <p class="text-sm text-brand-orange-sand/80 py-3">
+                                Adicione pelo menos 4 times ao campeonato para gerar grupos automaticamente.
+                            </p>
+                        @endif
+
+                        @if ($campeonato->grupos->isNotEmpty() && $campeonato->grupos->every(fn ($g) => $g->times->count() >= 2))
+                            <form method="POST" action="{{ route('campeonatos.gerar-partidas-grupos', $campeonato) }}" onsubmit="return confirm('Isso apagará todas as partidas atuais e gerará os jogos da fase de grupos. Continuar?')">
+                                @csrf
+                                <button type="submit" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-brand-ice/10 border border-brand-ice/10 hover:bg-brand-ice/15 transition font-medium">
+                                    ⚽ Gerar Partidas dos Grupos
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
+                    <h2 class="text-lg font-bold mb-4">Criar Grupo Manual</h2>
+
+                    <form method="POST" action="{{ route('campeonatos.grupos.store', $campeonato) }}" class="space-y-3">
+                        @csrf
+
+                        <input
+                            type="text"
+                            name="nome"
+                            required
+                            maxlength="255"
+                            placeholder="Ex: Grupo A"
+                            value="Grupo {{ chr(65 + min($campeonato->grupos->count(), 25)) }}"
+                            class="w-full p-3 rounded-2xl bg-brand-ice/5 border border-brand-ice/10 focus:border-brand-purple/50 focus:outline-none"
+                        >
+
+                        <button type="submit" class="w-full py-3 rounded-2xl bg-brand-ice/10 border border-brand-ice/10 hover:bg-brand-ice/15 transition font-medium">
+                            + Adicionar Grupo
+                        </button>
+                    </form>
                 </div>
             </div>
 
-            <div class="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-6">
-                <h2 class="text-xl font-bold mb-6">
-                    👟 Assistências
-                </h2>
+            @if ($timesSemGrupo->isNotEmpty())
+                <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        Times sem grupo ({{ $timesSemGrupo->count() }})
+                    </h3>
 
-                <div class="space-y-4">
-                    @forelse ($assistencias as $ass)
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <span class="font-semibold">
-                                    {{ $ass->assistencia->nome }}
-                                </span>
+                    <div class="flex flex-wrap gap-3">
+                        @foreach ($timesSemGrupo as $time)
+                            <div class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-brand-ice/5 border border-brand-ice/10">
+                                <img src="{{ asset('storage/' . $time->logo) }}" class="w-8 h-8 object-contain" alt="">
+                                <span class="text-sm font-medium">{{ $time->nome }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @if ($campeonato->grupos->isEmpty())
+                <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-12 text-center">
+                    <div class="text-5xl mb-4">👥</div>
+                    <h3 class="text-xl font-bold mb-2">Nenhum grupo criado</h3>
+                    <p class="text-brand-ice/50 max-w-md mx-auto">
+                        Crie grupos manualmente ou use a geração automática para distribuir os {{ $campeonato->times->count() }} times do campeonato.
+                    </p>
+                </div>
+            @else
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    @foreach ($campeonato->grupos as $grupo)
+                        <div class="bg-brand-surface border border-brand-ice/10 hover:border-brand-ice/20 rounded-3xl overflow-hidden transition hover:-translate-y-1">
+                            <div class="p-6 border-b border-brand-ice/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div>
+                                    <h2 class="text-2xl font-bold">
+                                        {{ $grupo->nome }}
+                                    </h2>
+
+                                    <p class="text-sm text-brand-ice/50 mt-1">
+                                        {{ $grupo->times->count() }} times
+                                    </p>
+                                </div>
+
+                                <div class="flex flex-wrap gap-2">
+                                    @if ($grupo->times->isEmpty())
+                                        <form method="POST" action="{{ route('grupos.destroy', $grupo) }}" onsubmit="return confirm('Excluir este grupo?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="px-4 py-2 rounded-xl bg-brand-orange/15 border border-brand-orange/25 text-brand-orange-sand text-sm hover:bg-brand-orange/25 transition">
+                                                Excluir
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                             </div>
 
-                            <span class="font-bold text-orange-300">
-                                {{ $ass->assistencias }}
-                            </span>
+                            @if ($timesSemGrupo->isNotEmpty())
+                                <div class="px-6 py-4 border-b border-brand-ice/10 bg-brand-ice/[0.02]">
+                                    <form method="POST" action="{{ route('grupos.times.store', $grupo) }}" class="flex flex-col sm:flex-row gap-3">
+                                        @csrf
+                                        <select name="time_id" required class="flex-1 p-3 rounded-2xl bg-brand-black text-brand-ice border border-brand-ice/10 focus:outline-none focus:border-brand-purple/50">
+                                            <option value="" class="bg-brand-black text-brand-ice">Adicionar time ao grupo...</option>
+                                            @foreach ($timesSemGrupo as $time)
+                                                <option value="{{ $time->id }}" class="bg-brand-black text-brand-ice">{{ $time->nome }}</option>
+                                            @endforeach
+                                        </select>
+                                        <button type="submit" class="px-5 py-3 rounded-2xl bg-brand-gradient opacity-90 font-medium hover:opacity-90 transition whitespace-nowrap">
+                                            Adicionar
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-brand-ice/5 text-brand-ice/50 text-xs uppercase">
+                                        <tr>
+                                            <th class="text-left p-4">#</th>
+                                            <th class="text-left p-4">Time</th>
+                                            <th class="text-center p-4">PTS</th>
+                                            <th class="text-center p-4">J</th>
+                                            <th class="text-center p-4">SG</th>
+                                            <th class="text-center p-4 w-16"></th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @forelse (data_get($classificacao, $grupo->id, []) as $index => $item)
+                                            <tr class="border-t border-brand-ice/5 hover:bg-brand-ice/5 transition">
+                                                <td class="p-4">
+                                                    <div class="w-8 h-8 rounded-full
+                                                        @if ((int) $index < 2)
+                                                            bg-brand-asphalt/40 text-brand-blue-light
+                                                        @else
+                                                            bg-brand-ice/5 text-brand-ice/60
+                                                        @endif
+                                                        flex items-center justify-center text-sm font-bold
+                                                    ">
+                                                        {{ (int) $index + 1 }}
+                                                    </div>
+                                                </td>
+
+                                                <td class="p-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <img class="w-10 h-10 object-contain" src="{{ asset('storage/' . $item['time']->logo) }}" alt="">
+                                                        <span class="font-semibold">{{ $item['time']->nome }}</span>
+                                                    </div>
+                                                </td>
+
+                                                <td class="p-4 text-center font-black text-brand-orange-sand">
+                                                    {{ $item['pontos'] }}
+                                                </td>
+
+                                                <td class="p-4 text-center text-brand-ice/80">
+                                                    {{ $item['jogos'] }}
+                                                </td>
+
+                                                <td class="p-4 text-center font-semibold
+                                                    @if ($item['sg'] > 0)
+                                                        text-brand-blue-light
+                                                    @elseif($item['sg'] < 0)
+                                                        text-brand-orange-sand
+                                                    @else
+                                                        text-brand-ice/70
+                                                    @endif
+                                                ">
+                                                    {{ $item['sg'] > 0 ? '+' : '' }}{{ $item['sg'] }}
+                                                </td>
+
+                                                <td class="p-4 text-center">
+                                                    <form method="POST" action="{{ route('grupos.times.destroy', [$grupo, $item['time']]) }}" onsubmit="return confirm('Remover {{ $item['time']->nome }} deste grupo?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-brand-orange-sand/70 hover:text-brand-orange-sand text-sm" title="Remover do grupo">
+                                                            ✕
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            @foreach ($grupo->times as $time)
+                                                <tr class="border-t border-brand-ice/5">
+                                                    <td class="p-4 text-brand-ice/50">—</td>
+                                                    <td class="p-4" colspan="4">
+                                                        <div class="flex items-center gap-3">
+                                                            <img class="w-10 h-10 object-contain" src="{{ asset('storage/' . $time->logo) }}" alt="">
+                                                            <span class="font-semibold">{{ $time->nome }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-4 text-center">
+                                                        <form method="POST" action="{{ route('grupos.times.destroy', [$grupo, $time]) }}" onsubmit="return confirm('Remover {{ $time->nome }} deste grupo?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="text-brand-orange-sand/70 hover:text-brand-orange-sand text-sm" title="Remover do grupo">✕</button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            @if ($grupo->times->isEmpty())
+                                                <tr>
+                                                    <td colspan="6" class="p-6 text-center text-brand-ice/50 text-sm">
+                                                        Nenhum time neste grupo. Adicione times acima.
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    @empty
-                        <p class="text-white/40 flex items-center justify-center py-10">
-                            Nenhuma assistencia registrado
-                        </p>
-                    @endforelse
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    @endif
+
+    @if ($campeonato->formato === 'liga')
+        <div x-show="tab === 'classificacao'" x-transition>
+            <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl overflow-hidden">
+                <div class="p-6 border-b border-brand-ice/10">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold">
+                                📊 Classificação
+                            </h2>
+
+                            <p class="text-sm text-brand-ice/50 mt-1">
+                                Tabela oficial do campeonato
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[900px]">
+                        <thead class="bg-brand-ice/5 text-brand-ice/50 text-sm uppercase tracking-wider">
+                            <tr>
+                                <th class="text-left p-4 w-6">
+                                    #
+                                </th>
+
+                                <th class="text-left p-4">
+                                    Time
+                                </th>
+
+                                <th class="p-4 text-center">
+                                    PTS
+                                </th>
+
+                                <th class="p-4 text-center">
+                                    J
+                                </th>
+
+                                <th class="p-4 text-center">
+                                    V
+                                </th>
+
+                                <th class="p-4 text-center">
+                                    E
+                                </th>
+
+                                <th class="p-4 text-center">
+                                    D
+                                </th>
+
+                                <th class="p-4 text-center">
+                                    GP
+                                </th>
+
+                                <th class="p-4 text-center">
+                                    GC
+                                </th>
+
+                                <th class="p-4 text-center">
+                                    SG
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach ($classificacao as $index => $item)
+                                <tr class="border-t border-brand-ice/5 hover:bg-brand-ice/5 transition" @if($index < 4) style="background: rgba(34,197,94,.06);" @endif>
+                                    <td class="p-4">
+                                        <div class="flex items-center gap-3">
+                                            @if ($index === 0)
+                                                <div class="w-8 h-8 rounded-full bg-brand-orange-sand/20 text-brand-orange-sand flex items-center justify-center text-sm font-bold">
+                                                    1
+                                                </div>
+                                            @elseif ($index === 1)
+                                                <div class="w-8 h-8 rounded-full bg-gray-400/20 text-brand-ice/80 flex items-center justify-center text-sm font-bold">
+                                                    2
+                                                </div>
+                                            @elseif ($index === 2)
+                                                <div class="w-8 h-8 rounded-full bg-brand-purple/30 text-brand-orange-sand flex items-center justify-center text-sm font-bold">
+                                                    3
+                                                </div>
+                                            @else
+                                                <div class="w-8 h-8 rounded-full bg-brand-ice/5 text-brand-ice/70 flex items-center justify-center text-sm font-bold">
+                                                    {{ $index + 1 }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </td>
+
+                                    <td class="p-4">
+                                        <div class="flex items-center gap-4">
+                                            <img src="{{ asset('storage/' . $item['time']->logo) }}" class="w-10 h-10 object-contain">
+
+                                            <div>
+                                                <p class="font-semibold">
+                                                    {{ $item['time']->nome }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td class="p-4 text-center">
+                                        <span class="text-brand-orange-sand font-black text-lg">
+                                            {{ $item['pontos'] }}
+                                        </span>
+                                    </td>
+
+                                    <td class="p-4 text-center text-brand-ice/80">
+                                        {{ $item['jogos'] }}
+                                    </td>
+
+                                    <td class="p-4 text-center text-brand-blue-light font-semibold">
+                                        {{ $item['vitorias'] }}
+                                    </td>
+
+                                    <td class="p-4 text-center text-brand-orange-sand font-semibold">
+                                        {{ $item['empates'] }}
+                                    </td>
+
+                                    <td class="p-4 text-center text-brand-orange-sand font-semibold">
+                                        {{ $item['derrotas'] }}
+                                    </td>
+
+                                    <td class="p-4 text-center">
+                                        {{ $item['gp'] }}
+                                    </td>
+
+                                    <td class="p-4 text-center">
+                                        {{ $item['gc'] }}
+                                    </td>
+
+                                    <td class="p-4 text-center">
+                                        <span class="font-bold
+
+                                            @if($item['sg'] > 0)
+                                                text-brand-blue-light
+                                            @elseif($item['sg'] < 0)
+                                                text-brand-orange-sand
+                                            @else
+                                                text-brand-ice/70
+                                            @endif
+                                        ">
+                                            {{ $item['sg'] > 0 ? '+' : '-'}} {{ $item['sg'] }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
+        </div>
+    @endif
 
-            <div class="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-6">
-                <h2 class="text-xl font-bold mb-6">
-                    🧤 Clean Sheets
-                </h2>
+    <div x-show="tab === 'partidas'" x-transition>
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+            <div class="xl:col-span-2 bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
+                <h2 class="text-xl font-bold mb-2">Nova Partida</h2>
+                <p class="text-sm text-brand-ice/50 mb-6">
+                    Crie confrontos manualmente entre os times do campeonato.
+                </p>
 
-                <div class="flex items-center justify-center py-10 text-white/40">
-                    Em breve
+                @if ($campeonato->times->count() < 2)
+                    <p class="text-sm text-brand-orange-sand/80">
+                        Adicione pelo menos 2 times ao campeonato para criar partidas.
+                    </p>
+                @else
+                    <form method="POST" action="{{ route('campeonatos.partidas.store', $campeonato) }}" class="space-y-4">
+                        @csrf
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-brand-ice/60 mb-2 block">Time da casa</label>
+                                <select name="time_casa_id" required class="w-full p-3 rounded-2xl bg-brand-black text-brand-ice border border-brand-ice/10 focus:outline-none focus:border-brand-purple/50">
+                                    <option value="" class="bg-brand-black text-brand-ice">Selecione...</option>
+                                    @foreach ($campeonato->times as $time)
+                                        <option value="{{ $time->id }}" class="bg-brand-black text-brand-ice" @selected(old('time_casa_id') == $time->id)>{{ $time->nome }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="text-sm text-brand-ice/60 mb-2 block">Time visitante</label>
+                                <select name="time_fora_id" required class="w-full p-3 rounded-2xl bg-brand-black text-brand-ice border border-brand-ice/10 focus:outline-none focus:border-brand-purple/50">
+                                    <option value="" class="bg-brand-black text-brand-ice">Selecione...</option>
+                                    @foreach ($campeonato->times as $time)
+                                        <option value="{{ $time->id }}" class="bg-brand-black text-brand-ice" @selected(old('time_fora_id') == $time->id)>{{ $time->nome }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-brand-ice/60 mb-2 block">Data e hora</label>
+                                <input
+                                    type="datetime-local"
+                                    name="data"
+                                    required
+                                    value="{{ old('data', now()->format('Y-m-d\TH:i')) }}"
+                                    class="w-full p-3 rounded-2xl bg-brand-ice/5 border border-brand-ice/10 focus:outline-none focus:border-brand-purple/50"
+                                >
+                            </div>
+
+                            @if ($campeonato->formato === 'mata_mata')
+                                <div>
+                                    <label class="text-sm text-brand-ice/60 mb-2 block">Fase</label>
+                                    <select name="fase" required class="w-full p-3 rounded-2xl bg-brand-black text-brand-ice border border-brand-ice/10 focus:outline-none focus:border-brand-purple/50">
+                                        <option value="" class="bg-brand-black text-brand-ice">Selecione...</option>
+                                        <option value="oitavas" class="bg-brand-black text-brand-ice" @selected(old('fase') === 'oitavas')>Oitavas</option>
+                                        <option value="quartas" class="bg-brand-black text-brand-ice" @selected(old('fase') === 'quartas')>Quartas</option>
+                                        <option value="semi" class="bg-brand-black text-brand-ice" @selected(old('fase') === 'semi')>Semifinal</option>
+                                        <option value="final" class="bg-brand-black text-brand-ice" @selected(old('fase') === 'final')>Final</option>
+                                    </select>
+                                </div>
+                            @endif
+                        </div>
+
+                        <button type="submit" class="px-6 py-3 rounded-2xl bg-brand-gradient font-semibold hover:opacity-90 transition">
+                            + Criar Partida
+                        </button>
+                    </form>
+                @endif
+            </div>
+
+            <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
+                <h2 class="text-lg font-bold mb-4">Resumo</h2>
+                <div class="space-y-3 text-sm">
+                    <p class="text-brand-ice/60">
+                        <span class="text-brand-ice font-semibold">{{ $campeonato->partidas->count() }}</span> partidas cadastradas
+                    </p>
+                    <p class="text-brand-ice/60">
+                        <span class="text-brand-ice font-semibold">{{ $campeonato->partidas->where('finalizada', true)->count() }}</span> finalizadas
+                    </p>
+                    <p class="text-brand-ice/60">
+                        <span class="text-brand-ice font-semibold">{{ $campeonato->times->count() }}</span> times no campeonato
+                    </p>
                 </div>
             </div>
         </div>
 
-        @if (!empty($classificacao))
-            <div class="mt-8">
-                <div class="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-6">
-                    <h2 class="text-2xl font-bold mb-6">
-                        📊 Classificação
-                    </h2>
-
-                    <div class="space-y-8">
-                        @foreach ($classificacao as $grupo => $times)
-                            <div class="overflow-hidden rounded-2xl border border-white/5">
-                                <div class="bg-white/[0.03] px-6 py-4 border-b border-white/5">
-                                    <h3 class="text-xl font-bold">
-                                        {{ $grupo }}
-                                    </h3>
-                                </div>
-
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead class="text-white/50 text-sm">
-                                            <tr class="border-b border-white/5">
-                                                <th class="text-left p-4">Time</th>
-                                                <th>PTS</th>
-                                                <th>J</th>
-                                                <th>V</th>
-                                                <th>E</th>
-                                                <th>D</th>
-                                                <th>GP</th>
-                                                <th>GC</th>
-                                                <th>SG</th>
-                                            </tr>
-                                        </thead>
-
-                                        <tbody>
-                                            @foreach ($times as $linha)
-                                                <tr class="border-b border-white/5 hover:bg-white/[0.02] transition">
-                                                    <td class="p-4">
-                                                        <div class="flex items-center gap-3">
-                                                            <img src="{{ asset('storage/' . $linha['time']->logo) }}" class="w-10 h-10 object-contain">
-
-                                                            <span class="font-semibold">
-                                                                {{ $linha['time']->nome }}
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center font-bold text-orange-300">{{ $linha['pontos'] }}</td>
-                                                    <td class="text-center">{{ $linha['jogos'] }}</td>
-                                                    <td class="text-center">{{ $linha['vitorias'] }}</td>
-                                                    <td class="text-center">{{ $linha['empates'] }}</td>
-                                                    <td class="text-center">{{ $linha['derrotas'] }}</td>
-                                                    <td class="text-center">{{ $linha['gp'] }}</td>
-                                                    <td class="text-center">{{ $linha['gc'] }}</td>
-                                                    <td class="text-center">{{ $linha['sg'] }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+        <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold">⚽ Partidas</h2>
+                    <p class="text-sm text-brand-ice/50 mt-1">Jogos do campeonato</p>
                 </div>
             </div>
-        @endif
+
+            @if ($campeonato->partidas->isEmpty())
+                <div class="py-12 text-center">
+                    <div class="text-5xl mb-4">⚽</div>
+                    <h3 class="text-xl font-bold mb-2">Nenhuma partida cadastrada</h3>
+                    <p class="text-brand-ice/50">Use o formulário acima para criar o primeiro jogo.</p>
+                </div>
+            @else
+                <div class="space-y-4">
+                    @foreach ($campeonato->partidas as $partida)
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-brand-ice/5 hover:bg-brand-ice/10 border border-brand-ice/5 hover:border-brand-ice/20 rounded-2xl p-4 transition">
+                            <a href="{{ route('partidas.show', $partida) }}" class="flex flex-col lg:flex-row lg:items-center gap-4 flex-1">
+                                <div class="flex items-center gap-6 flex-wrap">
+                                    <div class="flex items-center gap-3 min-w-[160px]">
+                                        <img src="{{ asset('storage/' . $partida->timeCasa->logo) }}" class="w-12 h-12 object-contain" alt="">
+                                        <span class="font-semibold">{{ $partida->timeCasa->nome }}</span>
+                                    </div>
+
+                                    <div class="text-3xl font-black tracking-wide">
+                                        {{ $partida->gols_casa }}
+                                        <span class="text-brand-ice/30 mx-2">x</span>
+                                        {{ $partida->gols_fora }}
+                                    </div>
+
+                                    <div class="flex items-center gap-3 min-w-[160px]">
+                                        <img src="{{ asset('storage/' . $partida->timeFora->logo) }}" class="w-12 h-12 object-contain" alt="">
+                                        <span class="font-semibold">{{ $partida->timeFora->nome }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-wrap items-center gap-3 text-sm text-brand-ice/50">
+                                    <span>📅 {{ $partida->data->format('d/m/Y H:i') }}</span>
+                                    @if ($partida->fase)
+                                        <span class="px-3 py-1 rounded-full bg-brand-ice/5 border border-brand-ice/10 capitalize">{{ str_replace('_', ' ', $partida->fase) }}</span>
+                                    @endif
+                                </div>
+                            </a>
+
+                            <div class="flex items-center gap-3">
+                                @if ($partida->finalizada)
+                                    <span class="px-4 py-1 rounded-full bg-brand-orange/15 border border-brand-orange/25 text-brand-orange-sand text-xs font-semibold">
+                                        FINALIZADA
+                                    </span>
+                                @else
+                                    <span class="px-4 py-1 rounded-full bg-brand-asphalt/50 border border-brand-blue-light/20 text-brand-blue-light text-xs font-semibold animate-pulse">
+                                        AO VIVO
+                                    </span>
+
+                                    <form method="POST" action="{{ route('partidas.destroy', $partida) }}" onsubmit="return confirm('Excluir esta partida?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="px-4 py-2 rounded-xl bg-brand-orange/15 border border-brand-orange/25 text-brand-orange-sand text-sm hover:bg-brand-orange/25 transition">
+                                            Excluir
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <div x-show="tab === 'estatisticas'" x-transition>
+        <div class="grid grid-cols-1 lg:grid-gols-2 gap-6">
+            <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold">
+                            ⚽ Artilheiros
+                        </h2>
+
+                        <p class="text-sm text-brand-ice/50 mt-1">
+                            Jogadores com mais gols
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    @foreach ($artilheiros as $index => $jogador)
+                        <div class="flex items-center justify-between bg-brand-ice/5 hover:bg-brand-ice/10 border border-brand-ice/5 hover:border-brand-ice/10 rounded-2xl p-4 transition">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full
+                                    @if($index === 0)
+                                        bg-brand-orange-sand/20 text-brand-orange-sand
+                                    @elseif ($index === 1)
+                                        bg-brand-urban/30 text-brand-ice/70
+                                    @elseif ($index === 2)
+                                        bg-brand-purple/30 text-brand-orange-sand
+                                    @else
+                                        bg-brand-ice/5 text-brand-ice/70
+                                    @endif
+                                    flex items-center justify-center font-bold
+                                ">
+                                    {{ $index + 1 }}
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ asset('storage/' . $jogador->time->logo) }}" class="w-12 h-12 object-contain">
+
+                                    <div>
+                                        <p class="font-semibold">
+                                            {{ $jogador->nome }}
+                                        </p>
+
+                                        <p class="text-xs text-brand-ice/50">
+                                            {{ $jogador->time->nome }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-right">
+                                <p class="text-2xl font-black text-brand-orange-sand">{{ $jogador->gols }}</p>
+
+                                <span class="text-xs text-brand-ice/50">
+                                    @if ($jogador->gols > 1)
+                                        gols
+                                    @else
+                                        gol
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold">
+                            🎯 Assistências
+                        </h2>
+
+                        <p class="text-sm text-brand-ice/50 mt-1">
+                            Líderes em assistências
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    @foreach ($assistencias as $index => $jogador)
+                        <div class="flex items-center justify-between bg-brand-ice/5 hover:bg-brand-ice/10 border border-brand-ice/5 hover:border-brand-ice/10 rounded-2xl p-4 transition">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-brand-blue/30 text-brand-blue-light flex items-center justify-center font-bold">
+                                    {{ $index + 1 }}
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ asset('storage/' . $jogador->time->logo) }}" class="w-12 h-12 object-contain">
+
+                                    <div>
+                                        <p class="font-semibold">
+                                            {{ $jogador->nome }}
+                                        </p>
+
+                                        <p class="text-xs text-brand-ice/50">
+                                            {{ $jogador->time->nome }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-right">
+                                <p class="text-2xl font-black text-brand-blue-light">
+                                    {{ $jogador->assistencias }}
+                                </p>
+
+                                <span class="text-xs text-brand-ice/50">
+                                    assists
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="tab === 'mata-mata'" x-transition>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            @foreach (data_get($classificados, 'label', []) as $partida)
+                <a href="{{ route('partidas.show', $partida) }}" class="flex items-center justify-between bg-brand-ice/5 hover:bg-brand-ice/10 transition rounded-2xl p-4 border border-brand-ice/5">
+                    <div class="flex items-center gap-4">
+                        <img src="{{ asset('storage/' . $partida->timeCasa->logo) }}" class="w-10 h-10 object-contain">
+
+                        <span class="font-medium">{{ $partida->timeCasa->nome }}</span>
+                    </div>
+                </a>
+
+                <a href="{{ route('partidas.show', $partida) }}" class="flex items-center justify-between bg-brand-ice/5 hover:bg-brand-ice/10 transition rounded-2xl p-4 border border-brand-ice/5">
+                    <div class="flex items-center gap-4">
+                        <img src="{{ asset('storage/' . $partida->timeFora->logo) }}" class="w-10 h-10 object-contain">
+
+                        <span class="font-medium">{{ $partida->timeFora->nome }}</span>
+                    </div>
+                </a>
+
+                <span class="text-brand-ice/30">
+                    vs
+                </span>
+            @endforeach
+        </div>
     </div>
 </div>
 

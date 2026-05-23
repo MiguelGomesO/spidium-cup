@@ -1,9 +1,9 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 
 <div class="p-8 overflow-x-auto w-full">
-    <h1 class="text-3xl font-bold text-white mb-10">
+    <h1 class="text-3xl font-bold text-brand-ice mb-10">
         🏆 {{ $campeonato->nome }}
     </h1>
 
@@ -15,7 +15,7 @@
 
             <div class="flex flex-col items-center relative bracket-column">
 
-                <h2 class="text-white/70 mb-6 uppercase tracking-widest text-sm">
+                <h2 class="text-brand-ice/80 mb-6 uppercase tracking-widest text-sm">
                     {{ $fase }}
                 </h2>
 
@@ -24,7 +24,7 @@
                     @foreach($jogos as $index => $jogo)
                     <div class="relative bracket-match">
 
-                        <div class="bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl p-4 w-64 shadow-xl transition duration-300 hover:scale-105 hover:shadow-2xl card-glow">
+                        <div class="bg-brand-ice/10 backdrop-blur-xl border border-brand-ice/10 rounded-xl p-4 w-64 shadow-xl transition duration-300 hover:scale-105 hover:shadow-2xl card-glow">
                             <div class="team {{ $jogo->gols_casa > $jogo->gols_fora ? 'winner' : ''}}">
                                 <span>{{ $jogo->timeCasa->nome }}</span>
                                 <span>{{ $jogo->gols_casa ?? '-' }}</span>
@@ -54,7 +54,7 @@
 
 <!-- <style>
     .match-card {
-        @apply bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl p-4 w-64 shadow-xl transition
+        @apply bg-brand-ice/10 backdrop-blur-xl border border-brand-ice/10 rounded-xl p-4 w-64 shadow-xl transition
         duration-300
     }
 
@@ -63,11 +63,11 @@
     }
 
     .team {
-        @apply flex justify-between text-white text-sm py-1
+        @apply flex justify-between text-brand-ice text-sm py-1
     }
 
     .team.winner {
-        @apply text-green-400 font-bold text-shadow: 0 0 8px #22c55e;
+        @apply text-brand-blue-light font-bold text-shadow: 0 0 8px #22c55e;
     }
 
     .connector-right {

@@ -1,15 +1,15 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 
-<div class="p-8 text-white space-y-6">
+<div class="p-8 text-brand-ice space-y-6">
     <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold">
             Escalação - {{ $time->nome }}
         </h1>
     </div>
 
-    <div class="col-span-2 relative bg-green-900/40 border border-white/10 rounded-2xl p-6 backdrop-blur-xl overflow-hidden">
+    <div class="col-span-2 relative bg-green-900/40 border border-brand-ice/10 rounded-2xl p-6 backdrop-blur-xl overflow-hidden">
         <div class="absolute inset-0 opacity-30">
             <div class="linha-horizontal w-full top-1/2"></div>
             <div class="linha-vertical h-full left-1/2"></div>

@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Partida extends Model
 {
+    protected $casts = [
+        'data' => 'datetime',
+        'finalizada' => 'boolean',
+    ];
+
     protected $fillable = [
         'campeonato_id',
         'time_casa_id',
@@ -14,6 +19,8 @@ class Partida extends Model
         'gols_fora',
         'finalizada',
         'data',
+        'fase',
+        'ordem',
     ];
 
     public function timeCasa()

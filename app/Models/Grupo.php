@@ -11,7 +11,7 @@ class Grupo extends Model
         'campeonato_id',
     ];
 
-    public function campeonat()
+    public function campeonato()
     {
         return $this->belongsTo(Campeonato::class);
     }

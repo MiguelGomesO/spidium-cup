@@ -1,6 +1,19 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
+
+<div class="max-w-4xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-3">
+    <a href="{{ route('partidas.index') }}" class="text-sm text-brand-ice/60 hover:text-brand-ice transition">← Partidas</a>
+    <a href="{{ route('partidas.edit', $partida) }}" class="text-sm px-4 py-2 rounded-xl bg-brand-ice/10 border border-brand-ice/10 hover:bg-brand-ice/15 transition">
+        Editar partida
+    </a>
+</div>
+
+@if (session('success'))
+    <div class="max-w-4xl mx-auto mb-4 bg-brand-asphalt/50 border border-brand-blue-light/25 text-brand-blue-light text-sm rounded-2xl px-5 py-4">
+        {{ session('success') }}
+    </div>
+@endif
 
 <div class="p-6 max-w-4xl mx-auto"
     x-data="{
@@ -62,9 +75,9 @@
         }
     }">
 
-    <div class="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-4">
+    <div class="bg-brand-black/50 backdrop-blur-xl border border-brand-ice/10 rounded-2xl p-6 mb-4">
 
-        <div class="text-center text-white/50 text-sm mb-4">
+        <div class="text-center text-brand-ice/60 text-sm mb-4">
             {{ \Carbon\Carbon::parse($partida->data)->format('d/m/Y H:i') }}
         </div>
 
@@ -83,11 +96,11 @@
             <div class="text-4xl font-bold text-center">
                 @if ($partida->finalizada)
                     <div class="text-center mb-4">
-                        <span class="bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-1 rounded-full text-xs font-bold tracking-wide">Finalizada</span>
+                        <span class="bg-brand-orange/15 text-brand-orange border border-brand-orange/30 px-4 py-1 rounded-full text-xs font-bold tracking-wide">Finalizada</span>
                     </div>
                 @endif
                 <span x-text="golsCasa"></span>
-                <span class="text-white/50">x</span>
+                <span class="text-brand-ice/60">x</span>
                 <span x-text="golsFora"></span>
             </div>
 
@@ -103,7 +116,7 @@
 
         </div>
 
-        <div class="text-center text-white/40 text-sm mt-4">
+        <div class="text-center text-brand-ice/50 text-sm mt-4">
             {{ $partida->campeonato->nome ?? 'Amistoso' }}
         </div>
 
@@ -112,7 +125,7 @@
                 📊 Adicionar Eventos
             </button>
 
-            <button @click="openFinalizar = true" class="bg-red-600 hover:bg-red-700 transition px-4 py-2 rounded font-medium">
+            <button @click="openFinalizar = true" class="bg-brand-orange hover:bg-brand-purple transition px-4 py-2 rounded font-medium">
                 🏁 Finalizar Partida
             </button>
         </div>
@@ -120,9 +133,9 @@
     </div>
 
     <div class="relative rounded-2xl p-6 overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-yellow-500/5"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-brand-orange/10 via-transparent to-brand-orange-sand/10"></div>
 
-        <div class="absolute inset-0 rounded-2xl border border-orange-400/20"></div>
+        <div class="absolute inset-0 rounded-2xl border border-brand-orange/25"></div>
 
         <div class="relative z-10 space-y-4">
 
@@ -132,11 +145,11 @@
             <template x-for="e in [...eventos].sort((a,b) => a.minuto - b.minuto)" :key="e.id">
                 <div class="relative flex items-center py-3">
 
-                    <div class="top-0 bottom-0 w-px bg-white/10 -translate-x-1/2"></div>
+                    <div class="top-0 bottom-0 w-px bg-brand-ice/10 -translate-x-1/2"></div>
 
                     <div class="w-1/2 pr-6 text-right">
                         <template x-if="e.jogador.time_id === {{ $partida->time_casa_id }}">
-                            <div class="inline-flex items-center gap-2 bg-orange-500/10 px-3 py-1 rounded-lg">
+                            <div class="inline-flex items-center gap-2 bg-brand-orange/10 px-3 py-1 rounded-lg">
                                 <span class="text-sm font-medium" x-text="e.jogador.nome"></span>
                                 <span x-show="e.tipo == 'gol'">⚽</span>
                                 <template x-if="e.tipo === 'gol' && e.assistencia">
@@ -149,14 +162,14 @@
                     </div>
 
                     <div class="relative z-10 w-0 flex flex-col items-center">
-                        <div class="bg-white/10 text-xs px-2 py-1 rounded-full">
+                        <div class="bg-brand-ice/10 text-xs px-2 py-1 rounded-full">
                             <span x-text="e.minuto + '\''"></span>
                         </div>
                     </div>
 
                     <div class="w-1/2 pl-6 text-left">
                         <template x-if="e.jogador.time_id === {{ $partida->time_fora_id }}">
-                            <div class="inline-flex items-center gap-2 bg-orange-500/10 px-3 py-1 rounded-lg">
+                            <div class="inline-flex items-center gap-2 bg-brand-orange/10 px-3 py-1 rounded-lg">
                                 <span class="text-sm font-medium" x-text="e.jogador.nome"></span>
                                 <span x-show="e.tipo === 'gol'">⚽</span>
                                 <template x-if="e.tipo === 'gol' && e.assistencia">
@@ -168,14 +181,14 @@
                         </template>
                     </div>
 
-                    <button @click="deleteGol(e.id)" class="text-red-400 hover:text-red-600 text-xs ml-2 opacity-60 hover:opacity-100 transition">
+                    <button @click="deleteGol(e.id)" class="text-brand-orange hover:text-brand-orange-sand text-xs ml-2 opacity-60 hover:opacity-100 transition">
                         ✕
                     </button>
                 </div>
             </template>
 
             <template x-if="eventos.length === 0">
-                <div class="text-center py-8 text-white/40">
+                <div class="text-center py-8 text-brand-ice/50">
 
                     <div class="text-3xl mb-2">⚽</div>
 
@@ -183,7 +196,7 @@
                         Nenhum evento registrado
                     </p>
 
-                    <p class="text-xs mt-1 text-white/30">
+                    <p class="text-xs mt-1 text-brand-ice/30">
                         Adicione o primeiro gol da partida
                     </p>
                 </div>
@@ -197,11 +210,11 @@
 
             <div @click="openGol = false" class="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
 
-            <div class="relative bg-[#020617] w-full max-w-md rounded-2xl border border-white/10 shadow-2xl p-6 space-y-5">
+            <div class="relative bg-brand-surface w-full max-w-md rounded-2xl border border-brand-ice/10 shadow-2xl p-6 space-y-5">
 
                 <div class="text-center">
                     <h2 class="text-lg font-semibold">Adicionar Gol ⚽</h2>
-                    <p class="text-xs text-white/40">Registre um evento da partida</p>
+                    <p class="text-xs text-brand-ice/50">Registre um evento da partida</p>
                 </div>
 
                 <div class="flex items-center justify-between text-sm">
@@ -212,7 +225,7 @@
                         <span class="text-xs text-center">{{ $partida->timeCasa->nome }}</span>
                     </div>
 
-                    <span class="text-white/40 font-bold">VS</span>
+                    <span class="text-brand-ice/50 font-bold">VS</span>
 
                     <div class="flex flex-col items-center gap-1 w-1/3">
                         @if($partida->timeFora->logo)
@@ -229,17 +242,17 @@
                     <input class="hidden" name="tipo" value="gol">
 
                     <div>
-                        <label class="text-xs text-white/60">Time</label>
+                        <label class="text-xs text-brand-ice/70">Time</label>
 
-                        <select name="time_id" x-model="time" class="w-full mt-1 bg-white/10 border border-white/10 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <select name="time_id" x-model="time" class="w-full mt-1 bg-brand-ice/10 border border-brand-ice/10 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                             <option value="casa">{{ $partida->timeCasa->nome }}</option>
                             <option value="fora">{{ $partida->timeFora->nome }}</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="text-xs text-white/60">Selecione o Evento</label>
-                        <select name="tipo" class="bg-gray-800 text-white w-full mt-1 border border-white/10 rounded px-3 py-2" x-model="tipo" @change="
+                        <label class="text-xs text-brand-ice/70">Selecione o Evento</label>
+                        <select name="tipo" class="bg-gray-800 text-brand-ice w-full mt-1 border border-brand-ice/10 rounded px-3 py-2" x-model="tipo" @change="
                             if (tipo !== 'gol') {
                                 temAssistencia = false;
                             }
@@ -251,15 +264,15 @@
                     </div>
 
                     <div>
-                        <label class="text-xs text-white/60">Jogador</label>
+                        <label class="text-xs text-brand-ice/70">Jogador</label>
 
-                        <select name="jogador_id" x-show="time === 'casa'" :disabled="time !== 'casa'" class="w-full mt-1 bg-white/10 border border-white/10 rounded-lg px-3 py-2" x-model="jogador_id">
+                        <select name="jogador_id" x-show="time === 'casa'" :disabled="time !== 'casa'" class="w-full mt-1 bg-brand-ice/10 border border-brand-ice/10 rounded-lg px-3 py-2" x-model="jogador_id">
                             @foreach($partida->timeCasa->jogadores as $j)
                             <option value="{{ $j->id }}">{{ $j->nome }}</option>
                             @endforeach
                         </select>
 
-                        <select name="jogador_id" x-show="time === 'fora'" :disabled="time !== 'fora'" class="w-full mt-1 bg-white/10 border border-white/10 rounded-lg px-3 py-2" x-model="jogador_id">
+                        <select name="jogador_id" x-show="time === 'fora'" :disabled="time !== 'fora'" class="w-full mt-1 bg-brand-ice/10 border border-brand-ice/10 rounded-lg px-3 py-2" x-model="jogador_id">
                             @foreach($partida->timeFora->jogadores as $j)
                             <option value="{{ $j->id }}">{{ $j->nome }}</option>
                             @endforeach
@@ -269,11 +282,11 @@
                     <div x-show="tipo === 'gol'">
                         <label class="mt-1 flex items-center gap-3 cursor-pointer select-none">
                             <input type="checkbox" x-model="temAssistencia" class="sr-only">
-                            <div class=" w-11 h-6 rounded-full relative transition" :class="temAssistencia ? 'bg-green-500' : 'bg-white/10'">
+                            <div class=" w-11 h-6 rounded-full relative transition" :class="temAssistencia ? 'bg-green-500' : 'bg-brand-ice/10'">
                                 <div class="h-5 w-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-all" :class="temAssistencia ? 'translate-x-5' : ''">
                                 </div>
                             </div>
-                            <span class="text-xs text-white/80">
+                            <span class="text-xs text-brand-ice/80">
                                 🎯 Assistência
                             </span>
                         </label>
@@ -281,15 +294,15 @@
 
                     <template x-if="tipo === 'gol' && temAssistencia">
                         <div>
-                            <label class="text-xs text-white/60">Assistência</label>
+                            <label class="text-xs text-brand-ice/70">Assistência</label>
 
-                            <select x-show="time === 'casa'" :disabled="time !== 'casa'" name="assistencia_id" class="w-full mt-1 bg-white/10 rounded-lg px-3 py-2">
+                            <select x-show="time === 'casa'" :disabled="time !== 'casa'" name="assistencia_id" class="w-full mt-1 bg-brand-ice/10 rounded-lg px-3 py-2">
                                 @foreach($partida->timeCasa->jogadores as $j)
                                 <option value="{{ $j->id }}">{{ $j->nome }}</option>
                                 @endforeach
                             </select>
 
-                            <select x-show="time === 'fora'" :disabled="time !== 'fora'" name="assistencia_id" class="w-full mt-1 bg-white/10 rounded-lg px-3 py-2">
+                            <select x-show="time === 'fora'" :disabled="time !== 'fora'" name="assistencia_id" class="w-full mt-1 bg-brand-ice/10 rounded-lg px-3 py-2">
                                 @foreach($partida->timeFora->jogadores as $j)
                                 <option value="{{ $j->id }}">{{ $j->nome }}</option>
                                 @endforeach
@@ -299,13 +312,13 @@
 
 
                     <div>
-                        <label class="text-xs text-white/60">Minuto</label>
+                        <label class="text-xs text-brand-ice/70">Minuto</label>
 
-                        <input type="number" name="minuto" min="1" max="90" placeholder="Ex: 23" class="w-full mt-1 bg-white/10 border border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="number" name="minuto" min="1" max="90" placeholder="Ex: 23" class="w-full mt-1 bg-brand-ice/10 border border-brand-ice/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
                     </div>
 
                     <div class="flex gap-2 pt-2">
-                        <button type="button" @click="openGol = false" class="w-1/2 bg-white/10 hover:bg-white/20 py-2 rounded-lg text-sm transition">
+                        <button type="button" @click="openGol = false" class="w-1/2 bg-brand-ice/10 hover:bg-brand-ice/15 py-2 rounded-lg text-sm transition">
                             Cancelar
                         </button>
                         <button class="w-1/2 bg-green-600 hover:bg-green-700 py-2 rounded-lg text-sm font-semibold transition">
@@ -322,7 +335,7 @@
         <div class="fixed inset-0 z-[99999] flex items-center justify-center">
             <div @click="openFinalizar = false" class="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
 
-            <div class="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#020617] p-6 shadow-2xl">
+            <div class="relative w-full max-w-md rounded-2xl border border-brand-ice/10 bg-brand-surface p-6 shadow-2xl">
                 <div class="text-center">
                     <div class="text-5xl mb-3">
                         🏁
@@ -332,12 +345,12 @@
                         Finalizar partida?
                     </h2>
 
-                    <p class="text-sm text-white/50 mb-6">
+                    <p class="text-sm text-brand-ice/60 mb-6">
                         Após finalizar, os eventos e o placar não poderão mais ser alterados.
                     </p>
 
                     <div class="flex gap-3">
-                        <button @click="openFinalizar = false" class="flex-1 bg-white/10 hover:bg-white/20 transition rounded-xl py-3">
+                        <button @click="openFinalizar = false" class="flex-1 bg-brand-ice/10 hover:bg-brand-ice/15 transition rounded-xl py-3">
                             Cancelar
                         </button>
 
@@ -345,7 +358,7 @@
                             @csrf
                             @method('PATCH')
 
-                            <button class="w-full bg-red-600 hover:bg-red-700 transition rounded-xl py-3 font-semibold">
+                            <button class="w-full bg-brand-orange hover:bg-brand-purple transition rounded-xl py-3 font-semibold">
                                 Finalizar
                             </button>
                         </form>

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Time;
-use App\Models\Campeonato;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,23 +11,29 @@ class TimeController extends Controller
 
     public function index()
     {
-        $times = Time::all();
+        $times = Time::query()
+            ->withCount(['jogadores', 'campeonatos'])
+            ->orderBy('nome')
+            ->get();
+
         return view('times.index', compact('times'));
     }
 
     public function create()
     {
-        $campeonatos = Campeonato::all();
-        return view('times.create', compact('campeonatos'));
+        return view('times.create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nome' => 'required',
+            'nome' => 'required|string|max:255',
+            'logo' => 'nullable|image|max:5120',
+            'uniforme' => 'nullable|image|max:5120',
+            'estadio' => 'nullable|image|max:5120',
         ]);
 
-        $data = $request->all();
+        $data = $request->only(['nome']);
 
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('times', 'public');
@@ -44,20 +49,28 @@ class TimeController extends Controller
 
         $time = Time::create($data);
 
-        return redirect()->route('times.edit', $time->id);
+        return redirect()
+            ->route('times.edit', $time)
+            ->with('success', 'Time criado! Agora você pode adicionar jogadores.');
     }
 
     public function edit(Time $time)
     {
-        $campeonatos = Campeonato::all();
-        $time->load('jogadores');
-        return view('times.edit', compact('time', 'campeonatos'));
+        $time->loadCount(['jogadores', 'campeonatos']);
+        $time->load([
+            'jogadores' => fn ($q) => $q->orderByRaw('numero IS NULL')->orderBy('numero')->orderBy('nome'),
+        ]);
+
+        return view('times.edit', compact('time'));
     }
 
     public function update(Request $request, Time $time)
     {
         foreach (['logo', 'uniforme', 'estadio'] as $campo) {
             if ($request->hasFile($campo)) {
+                $request->validate([
+                    $campo => 'image|max:5120',
+                ]);
                 if ($time->$campo) {
                     Storage::disk('public')->delete($time->$campo);
                 }
@@ -71,14 +84,19 @@ class TimeController extends Controller
                 return response()->json([
                     'success' => true,
                     'campo' => $campo,
-                    'path' => $path
+                    'path' => $path,
+                    'url' => asset('storage/' . $path),
                 ]);
             }
         }
 
         if ($request->filled('nome')) {
+            $request->validate([
+                'nome' => 'required|string|max:255',
+            ]);
+
             $time->update([
-                'nome' => $request->nome
+                'nome' => $request->nome,
             ]);
         }
 
