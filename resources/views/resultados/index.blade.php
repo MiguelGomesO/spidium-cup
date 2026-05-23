@@ -3,11 +3,11 @@
 @section('title', 'Campeonatos')
 
 @section('content')
-    <div class="mb-10">
-        <h1 class="text-4xl font-black text-brand-gradient bg-clip-text text-transparent">
+    <div class="mb-6 sm:mb-10">
+        <h1 class="page-title">
             Campeonatos
         </h1>
-        <p class="mt-2 text-brand-ice/60 max-w-xl">
+        <p class="page-subtitle max-w-xl">
             Acompanhe classificação, partidas e artilheiros. Clique em um campeonato para ver os detalhes.
         </p>
     </div>
@@ -19,7 +19,7 @@
             <p class="text-brand-ice/50">Os resultados aparecerão aqui quando houver campeonatos cadastrados.</p>
         </div>
     @else
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div class="grid-cards">
             @foreach ($campeonatos as $campeonato)
                 @php
                     $formatoLabel = match ($campeonato->formato) {

@@ -5,6 +5,7 @@ use App\Http\Controllers\CampeonatoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventosPartidaController;
 use App\Http\Controllers\JogadorController;
+use App\Http\Controllers\ParticipacaoPartidaController;
 use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\ResultadosController;
 use App\Http\Controllers\TimeController;
@@ -32,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/times/{time}/historico', [PartidaController::class, 'historico']);
     Route::get('/times/{time}/artilheiros', [PartidaController::class, 'artilheiros']);
     Route::post('/times/{time}/jogadores', [JogadorController::class, 'store'])->name('jogadores.store');
+    Route::put('/jogadores/{jogador}', [JogadorController::class, 'update'])->name('jogadores.update');
     Route::delete('jogadores/{jogador}', [JogadorController::class, 'destroy'])->name('jogadores.destroy');
     Route::post('/eventos', [EventosPartidaController::class, 'store'])->name('eventos.store');
     Route::delete('/eventos/{evento}', [EventosPartidaController::class, 'destroy'])->name('eventos.destroy');
@@ -45,6 +47,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/campeonatos/{campeonato}/gerar-partidas-grupos', [CampeonatoController::class, 'gerarPartidasGrupos'])->name('campeonatos.gerar-partidas-grupos');
     Route::post('/campeonatos/{campeonato}/partidas', [CampeonatoController::class, 'storePartida'])->name('campeonatos.partidas.store');
     Route::patch('/partidas/{partida}/finalizar', [PartidaController::class, 'finalizar'])->name('partidas.finalizar');
+    Route::patch('/partidas/{partida}/status', [PartidaController::class, 'atualizarStatus'])->name('partidas.status');
+    Route::post('/partidas/{partida}/participacoes', [ParticipacaoPartidaController::class, 'sync'])->name('partidas.participacoes.sync');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 

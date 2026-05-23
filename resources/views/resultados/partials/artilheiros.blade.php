@@ -7,8 +7,8 @@
     @else
         <div class="space-y-3">
             @foreach ($artilheiros as $index => $jogador)
-                <div class="flex items-center justify-between bg-brand-ice/5 rounded-2xl p-4">
-                    <div class="flex items-center gap-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-brand-ice/5 rounded-2xl p-4">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
                         <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm
                             @if ($index === 0) bg-brand-orange-sand/20 text-brand-orange-sand
                             @elseif ($index === 1) bg-brand-urban/30 text-brand-ice/70
@@ -21,9 +21,11 @@
 
                         <img src="{{ asset('storage/' . $jogador->time->logo) }}" class="w-10 h-10 object-contain" alt="">
 
-                        <div>
+                        <div class="min-w-0">
                             <p class="font-semibold">{{ $jogador->nome }}</p>
                             <p class="text-xs text-brand-ice/50">{{ $jogador->time->nome }}</p>
+                            <x-jogador-social-links :jogador="$jogador" class="mt-2" />
+                            <x-jogador-stats :jogador="$jogador" class="mt-2" />
                         </div>
                     </div>
 

@@ -2,7 +2,6 @@
     'timesForSelect',
     'casa' => null,
     'fora' => null,
-    'dataDefault' => null,
     'readonlyTeams' => false,
 ])
 
@@ -12,7 +11,6 @@
         openFora: false,
         casa: @js($casa),
         fora: @js($fora),
-        data: @js($dataDefault ?? now()->format('Y-m-d\TH:i')),
         times: @js($timesForSelect),
         readonlyTeams: @js($readonlyTeams),
 
@@ -145,21 +143,6 @@
         </div>
     </div>
 
-    <div>
-        <label for="data" class="text-sm font-medium text-brand-ice/80 mb-2 block">Data e hora</label>
-        <input
-            id="data"
-            type="datetime-local"
-            name="data"
-            x-model="data"
-            required
-            class="w-full p-4 rounded-2xl bg-brand-black/50 border border-brand-ice/10 text-brand-ice focus:border-brand-blue-light focus:ring-2 focus:ring-brand-blue-light/25 outline-none transition"
-        >
-        @error('data')
-            <p class="mt-2 text-sm text-brand-orange">{{ $message }}</p>
-        @enderror
-    </div>
-
     <template x-if="casa || fora">
         <div class="rounded-2xl border border-brand-ice/10 bg-brand-black/40 p-6">
             <p class="text-xs text-brand-urban uppercase tracking-wider mb-4 text-center">Prévia do confronto</p>
@@ -186,7 +169,6 @@
                     </template>
                 </div>
             </div>
-            <p x-show="data" class="text-center text-xs text-brand-ice/50 mt-4" x-text="data ? new Date(data).toLocaleString('pt-BR') : ''"></p>
         </div>
     </template>
 

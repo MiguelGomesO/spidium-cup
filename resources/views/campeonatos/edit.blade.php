@@ -1,5 +1,8 @@
 ﻿@extends('layouts.app')
 
+@section('page-title', $campeonato->nome)
+@section('title', $campeonato->nome)
+
 @section('content')
 
 @if (session('success'))
@@ -14,8 +17,8 @@
     </script>
 @endif
 
-<div x-data="{ tab: @js(request('tab', 'visao-geral')) }" class="space-y-8">
-    <div class="relative overflow-hidden rounded-3xl border border-brand-ice/10 bg-brand-surface p-8 lg:p-10">
+<div x-data="{ tab: @js(request('tab', 'visao-geral')) }" class="page">
+    <div class="page-hero">
         <div class="absolute inset-0 bg-gradient-to-br from-brand-orange/10 via-brand-purple/10"></div>
 
         <div class="absolute -top-20 -right-20 w-72 h-72 bg-brand-purple/20 blur-3xl rounded-full"></div>
@@ -80,43 +83,26 @@
                     </p>
 
                     <h2 class="text-4xl font-black mt-2">
-                        {{ $campeonato->partidas->where('finalizada', true)->count() }}
+                        {{ $campeonato->partidas->where('status', \App\Models\Partida::STATUS_FINALIZADA)->count() }}
                     </h2>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="flex flex-wrap gap-3">
-        <button @click="tab = 'visao-geral'" :class="tab === 'visao-geral' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'" class="px-5 py-3 rounded-2xl transition font-medium">
-            🏆 Visão Geral
-        </button>
-
+    <div class="tabs-scroll" role="tablist">
+        <button type="button" @click="tab = 'visao-geral'" :class="tab === 'visao-geral' ? 'tab-pill tab-pill--active' : 'tab-pill tab-pill--idle'">Visão geral</button>
         @if ($campeonato->formato === 'grupos')
-            <button @click="tab = 'grupos'" :class="tab === 'grupos' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'" class="px-5 py-3 rounded-2xl transition font-medium">
-                👥 Grupos
-            </button>
+            <button type="button" @click="tab = 'grupos'" :class="tab === 'grupos' ? 'tab-pill tab-pill--active' : 'tab-pill tab-pill--idle'">Grupos</button>
         @endif
-
         @if ($campeonato->formato === 'mata_mata')
-            <button @click="tab = 'mata-mata'" :class="tab === 'mata-mata' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'">
-                🏆 Mata-Mata
-            </button>
+            <button type="button" @click="tab = 'mata-mata'" :class="tab === 'mata-mata' ? 'tab-pill tab-pill--active' : 'tab-pill tab-pill--idle'">Mata-mata</button>
         @endif
-
-        <button @click="tab = 'partidas'" :class="tab === 'partidas' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'" class="px-5 py-3 rounded-2xl transition font-medium">
-            ⚽ Partidas
-        </button>
-
+        <button type="button" @click="tab = 'partidas'" :class="tab === 'partidas' ? 'tab-pill tab-pill--active' : 'tab-pill tab-pill--idle'">Partidas</button>
         @if ($campeonato->formato === 'liga')
-            <button @click="tab = 'classificacao'" :class="tab === 'classificacao' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'" class="px-5 py-3 rounded-2xl transition font-medium">
-                📊 Classificação
-            </button>
+            <button type="button" @click="tab = 'classificacao'" :class="tab === 'classificacao' ? 'tab-pill tab-pill--active' : 'tab-pill tab-pill--idle'">Classificação</button>
         @endif
-
-        <button @click="tab = 'estatisticas'" :class="tab === 'estatisticas' ? 'bg-brand-gradient text-brand-ice' : 'bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10'" class="px-5 py-3 rounded-2xl transition font-medium">
-            🔥 Estatísticas
-        </button>
+        <button type="button" @click="tab = 'estatisticas'" :class="tab === 'estatisticas' ? 'tab-pill tab-pill--active' : 'tab-pill tab-pill--idle'">Estatísticas</button>
     </div>
 
     <div x-show="tab === 'visao-geral'" x-transition>
@@ -132,7 +118,7 @@
                     </div>
 
                     <div class="space-y-4">
-                        @foreach ($campeonato->partidas->where('finalizada', true)->take(5) as $partida)
+                        @foreach ($campeonato->partidas->where('status', \App\Models\Partida::STATUS_FINALIZADA)->take(5) as $partida)
                             <a href="{{ route('partidas.show', $partida) }}" class="flex items-center justify-between bg-brand-ice/5 hover:bg-brand-ice/10 transition rounded-2xl p-4 border border-brand-ice/5">
                                 <div class="flex items-center gap-4">
                                     <div class="flex items-center gap-3">
@@ -624,14 +610,10 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-sm text-brand-ice/60 mb-2 block">Data e hora</label>
-                                <input
-                                    type="datetime-local"
-                                    name="data"
-                                    required
-                                    value="{{ old('data', now()->format('Y-m-d\TH:i')) }}"
-                                    class="w-full p-3 rounded-2xl bg-brand-ice/5 border border-brand-ice/10 focus:outline-none focus:border-brand-purple/50"
-                                >
+                                <x-partidas.status-select
+                                    :selected="old('status', \App\Models\Partida::STATUS_EM_ANDAMENTO)"
+                                    id="campeonato-partida-status"
+                                />
                             </div>
 
                             @if ($campeonato->formato === 'mata_mata')
@@ -662,7 +644,7 @@
                         <span class="text-brand-ice font-semibold">{{ $campeonato->partidas->count() }}</span> partidas cadastradas
                     </p>
                     <p class="text-brand-ice/60">
-                        <span class="text-brand-ice font-semibold">{{ $campeonato->partidas->where('finalizada', true)->count() }}</span> finalizadas
+                        <span class="text-brand-ice font-semibold">{{ $campeonato->partidas->where('status', \App\Models\Partida::STATUS_FINALIZADA)->count() }}</span> finalizadas
                     </p>
                     <p class="text-brand-ice/60">
                         <span class="text-brand-ice font-semibold">{{ $campeonato->times->count() }}</span> times no campeonato
@@ -709,7 +691,7 @@
                                 </div>
 
                                 <div class="flex flex-wrap items-center gap-3 text-sm text-brand-ice/50">
-                                    <span>📅 {{ $partida->data->format('d/m/Y H:i') }}</span>
+                                    <x-partida-status-badge :partida="$partida" :pulse="true" />
                                     @if ($partida->fase)
                                         <span class="px-3 py-1 rounded-full bg-brand-ice/5 border border-brand-ice/10 capitalize">{{ str_replace('_', ' ', $partida->fase) }}</span>
                                     @endif
@@ -717,15 +699,7 @@
                             </a>
 
                             <div class="flex items-center gap-3">
-                                @if ($partida->finalizada)
-                                    <span class="px-4 py-1 rounded-full bg-brand-orange/15 border border-brand-orange/25 text-brand-orange-sand text-xs font-semibold">
-                                        FINALIZADA
-                                    </span>
-                                @else
-                                    <span class="px-4 py-1 rounded-full bg-brand-asphalt/50 border border-brand-blue-light/20 text-brand-blue-light text-xs font-semibold animate-pulse">
-                                        AO VIVO
-                                    </span>
-
+                                @if (! $partida->isFinalizada())
                                     <form method="POST" action="{{ route('partidas.destroy', $partida) }}" onsubmit="return confirm('Excluir esta partida?')">
                                         @csrf
                                         @method('DELETE')
@@ -787,6 +761,9 @@
                                         <p class="text-xs text-brand-ice/50">
                                             {{ $jogador->time->nome }}
                                         </p>
+
+                                        <x-jogador-social-links :jogador="$jogador" class="mt-2" />
+                                        <x-jogador-stats :jogador="$jogador" class="mt-2" />
                                     </div>
                                 </div>
                             </div>
@@ -839,6 +816,9 @@
                                         <p class="text-xs text-brand-ice/50">
                                             {{ $jogador->time->nome }}
                                         </p>
+
+                                        <x-jogador-social-links :jogador="$jogador" class="mt-2" />
+                                        <x-jogador-stats :jogador="$jogador" class="mt-2" />
                                     </div>
                                 </div>
                             </div>

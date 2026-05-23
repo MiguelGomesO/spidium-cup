@@ -1,10 +1,12 @@
 ﻿@extends('layouts.app')
 
+@section('page-title', 'Dashboard')
+@section('title', 'Dashboard')
+
 @section('content')
 
-<div class="max-w-7xl mx-auto space-y-8">
-    {{-- Hero --}}
-    <div class="relative overflow-hidden rounded-3xl border border-brand-ice/10 bg-brand-surface p-8 lg:p-10">
+<div class="page">
+    <div class="page-hero">
         <div class="absolute inset-0 bg-gradient-to-br from-brand-orange/10 via-brand-purple/10 to-brand-blue/10"></div>
         <div class="absolute -top-16 -right-16 w-64 h-64 bg-brand-purple/20 blur-3xl rounded-full"></div>
         <div class="absolute -bottom-16 -left-16 w-64 h-64 bg-brand-orange/15 blur-3xl rounded-full"></div>
@@ -15,50 +17,50 @@
                     Painel administrativo
                 </span>
 
-                <h1 class="text-3xl lg:text-4xl font-black text-brand-gradient">
+                <h1 class="page-title">
                     Olá, {{ Auth::user()->name }} 👋
                 </h1>
 
-                <p class="mt-3 text-brand-ice/60 max-w-xl leading-relaxed">
+                <p class="page-subtitle max-w-xl">
                     Visão geral do Spidium Cup — campeonatos, partidas ao vivo e artilheiros em um só lugar.
                 </p>
 
-                <div class="flex flex-wrap gap-3 mt-6">
-                    <a href="{{ route('campeonatos.create') }}" class="px-5 py-2.5 rounded-2xl bg-brand-gradient font-semibold hover:opacity-90 transition text-sm">
+                <div class="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 mt-5 sm:mt-6">
+                    <a href="{{ route('campeonatos.create') }}" class="btn-brand w-full sm:w-auto text-sm">
                         + Novo campeonato
                     </a>
-                    <a href="{{ route('partidas.create') }}" class="px-5 py-2.5 rounded-2xl bg-brand-ice/10 border border-brand-ice/10 hover:bg-brand-ice/15 transition text-sm">
-                        Agendar partida
+                    <a href="{{ route('partidas.create') }}" class="btn-ghost w-full sm:w-auto text-sm">
+                        Nova partida
                     </a>
-                    <a href="{{ route('resultados.index') }}" target="_blank" class="px-5 py-2.5 rounded-2xl bg-brand-ice/10 border border-brand-ice/10 hover:bg-brand-ice/15 transition text-sm">
-                        Ver página pública ↗
+                    <a href="{{ route('resultados.index') }}" target="_blank" class="btn-ghost w-full sm:w-auto text-sm">
+                        Página pública ↗
                     </a>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 w-full lg:w-[380px] shrink-0">
-                <div class="bg-brand-black/40 border border-brand-ice/10 rounded-2xl p-4">
-                    <p class="text-xs text-brand-urban">Campeonatos</p>
-                    <p class="text-3xl font-black mt-1 text-brand-ice">{{ $campeonatos }}</p>
+            <div class="grid-stats w-full lg:w-[380px] shrink-0">
+                <div class="stat-box">
+                    <p class="stat-box__label">Campeonatos</p>
+                    <p class="stat-box__value text-brand-ice">{{ $campeonatos }}</p>
                 </div>
-                <div class="bg-brand-black/40 border border-brand-ice/10 rounded-2xl p-4">
-                    <p class="text-xs text-brand-urban">Times</p>
-                    <p class="text-3xl font-black mt-1 text-brand-ice">{{ $times }}</p>
+                <div class="stat-box">
+                    <p class="stat-box__label">Times</p>
+                    <p class="stat-box__value text-brand-ice">{{ $times }}</p>
                 </div>
-                <div class="bg-brand-black/40 border border-brand-ice/10 rounded-2xl p-4">
-                    <p class="text-xs text-brand-urban">Partidas</p>
-                    <p class="text-3xl font-black mt-1 text-brand-blue-light">{{ $partidas }}</p>
+                <div class="stat-box">
+                    <p class="stat-box__label">Partidas</p>
+                    <p class="stat-box__value text-brand-blue-light">{{ $partidas }}</p>
                 </div>
-                <div class="bg-brand-black/40 border border-brand-ice/10 rounded-2xl p-4">
-                    <p class="text-xs text-brand-urban">Finalizadas</p>
-                    <p class="text-3xl font-black mt-1 text-brand-orange-sand">{{ $partidasFinalizadas }}</p>
+                <div class="stat-box">
+                    <p class="stat-box__label">Finalizadas</p>
+                    <p class="stat-box__value text-brand-orange-sand">{{ $partidasFinalizadas }}</p>
                 </div>
             </div>
         </div>
     </div>
 
     {{-- Atalhos rápidos --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <a href="{{ route('campeonatos.index') }}" class="group p-5 rounded-2xl bg-brand-surface border border-brand-ice/10 hover:border-brand-purple/40 transition">
             <span class="text-2xl" aria-hidden="true">🏆</span>
             <p class="font-semibold mt-3 group-hover:text-brand-orange-sand transition">Campeonatos</p>
@@ -85,17 +87,17 @@
         {{-- Coluna principal --}}
         <div class="xl:col-span-2 space-y-6">
             {{-- Ao vivo --}}
-            <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-6">
+            <div class="section-card">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 sm:mb-6">
                     <div>
-                        <h2 class="text-xl font-bold flex items-center gap-2">
+                        <h2 class="text-lg sm:text-xl font-bold flex items-center gap-2">
                             <span class="relative flex h-3 w-3">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-3 w-3 bg-brand-orange"></span>
                             </span>
-                            Em andamento
+                            Ao vivo
                         </h2>
-                        <p class="text-sm text-brand-ice/50 mt-1">Partidas ainda não finalizadas</p>
+                        <p class="text-sm text-brand-ice/50 mt-1">Partidas com súmula ativa agora</p>
                     </div>
                     <a href="{{ route('partidas.index') }}" class="text-sm text-brand-blue-light hover:text-brand-ice transition">
                         Ver todas →
@@ -143,9 +145,9 @@
                         </div>
                     @empty
                         <div class="text-center py-12 rounded-2xl border border-dashed border-brand-ice/10">
-                            <p class="text-brand-ice/40 mb-4">Nenhuma partida em andamento no momento.</p>
+                            <p class="text-brand-ice/40 mb-4">Nenhuma partida ao vivo no momento.</p>
                             <a href="{{ route('partidas.create') }}" class="inline-flex px-5 py-2.5 rounded-xl bg-brand-gradient text-sm font-semibold hover:opacity-90 transition">
-                                Agendar partida
+                                Nova partida
                             </a>
                         </div>
                     @endforelse
@@ -153,10 +155,10 @@
             </div>
 
             {{-- Últimos resultados --}}
-            <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-6">
+            <div class="section-card">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 sm:mb-6">
                     <div>
-                        <h2 class="text-xl font-bold">Últimos resultados</h2>
+                        <h2 class="text-lg sm:text-xl font-bold">Últimos resultados</h2>
                         <p class="text-sm text-brand-ice/50 mt-1">Partidas finalizadas recentemente</p>
                     </div>
                     <a href="{{ route('resultados.index') }}" class="text-sm text-brand-blue-light hover:text-brand-ice transition">
@@ -187,9 +189,7 @@
                                     <span class="text-xl font-black tabular-nums text-brand-orange-sand">
                                         {{ $partida->gols_casa }} × {{ $partida->gols_fora }}
                                     </span>
-                                    <span class="text-xs text-brand-urban">
-                                        {{ $partida->data->format('d/m H:i') }}
-                                    </span>
+                                    <x-partida-status-badge :partida="$partida" class="text-xs" />
                                 </div>
                             </div>
                         </a>
@@ -202,17 +202,15 @@
 
         {{-- Sidebar --}}
         <div class="space-y-6">
-            {{-- Próximas partidas --}}
-            <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
-                <h2 class="text-lg font-bold mb-1">Próximas partidas</h2>
-                <p class="text-sm text-brand-ice/50 mb-5">Agendadas e ainda não iniciadas</p>
+            {{-- Em andamento --}}
+            <div class="section-card">
+                <h2 class="text-lg font-bold mb-1">Em andamento</h2>
+                <p class="text-sm text-brand-ice/50 mb-5">Cadastradas no campeonato, ainda não ao vivo</p>
 
                 <div class="space-y-3">
-                    @forelse ($proximasPartidas as $partida)
-                        <a href="{{ route('partidas.edit', $partida) }}" class="block p-4 rounded-2xl bg-brand-black/40 border border-brand-ice/5 hover:border-brand-ice/15 transition">
-                            <p class="text-xs text-brand-blue-light font-medium mb-2">
-                                {{ $partida->data->format('d/m/Y · H:i') }}
-                            </p>
+                    @forelse ($partidasEmAndamento as $partida)
+                        <a href="{{ route('partidas.show', $partida) }}" class="block p-4 rounded-2xl bg-brand-black/40 border border-brand-ice/5 hover:border-brand-ice/15 transition">
+                            <x-partida-status-badge :partida="$partida" class="mb-2" />
                             <p class="text-sm font-semibold leading-snug">
                                 {{ $partida->timeCasa->nome }}
                                 <span class="text-brand-urban font-normal"> vs </span>
@@ -223,13 +221,13 @@
                             </p>
                         </a>
                     @empty
-                        <p class="text-sm text-brand-ice/40 text-center py-4">Nenhuma partida agendada.</p>
+                        <p class="text-sm text-brand-ice/40 text-center py-4">Nenhuma partida em andamento.</p>
                     @endforelse
                 </div>
             </div>
 
             {{-- Artilheiros --}}
-            <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6">
+            <div class="section-card">
                 <h2 class="text-lg font-bold mb-1">Artilheiros</h2>
                 <p class="text-sm text-brand-ice/50 mb-5">Maiores goleadores gerais</p>
 

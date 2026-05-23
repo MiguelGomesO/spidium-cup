@@ -16,7 +16,7 @@ class ResultadosController extends Controller
             ->withCount([
                 'times',
                 'partidas',
-                'partidas as partidas_finalizadas_count' => fn ($q) => $q->where('finalizada', true),
+                'partidas as partidas_finalizadas_count' => fn ($q) => $q->finalizadas(),
             ])
             ->latest()
             ->get();
@@ -31,7 +31,7 @@ class ResultadosController extends Controller
             'grupos.times',
             'partidas' => fn ($query) => $query
                 ->with(['timeCasa', 'timeFora'])
-                ->orderBy('data'),
+                ->orderByDesc('id'),
         ]);
 
         $partidasPorFase = null;
