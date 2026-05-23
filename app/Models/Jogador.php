@@ -19,7 +19,13 @@ class Jogador extends Model
         return $this->belongsTo(Time::class);
     }
 
-    public function eventos() {
-        return $this->hasMany(EventosPartida::class);
+    public function eventos()
+    {
+        return $this->hasMany(EventosPartida::class, 'jogador_id');
+    }
+
+    public function eventosComoAssistencia()
+    {
+        return $this->hasMany(EventosPartida::class, 'assistencia_id');
     }
 }

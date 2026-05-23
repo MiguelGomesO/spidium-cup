@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\CalculaEstatisticasCampeonato;
 use App\Models\Campeonato;
+use App\Models\EventosPartida;
 use App\Models\Grupo;
 use App\Models\Partida;
 use App\Models\Time;
+use App\Models\Jogador;
 use Illuminate\Http\Request;
 
 class CampeonatoController extends Controller
 {
+    use CalculaEstatisticasCampeonato;
+
     public function index()
     {
         $campeonatos = Campeonato::latest()->get();
@@ -53,12 +58,6 @@ class CampeonatoController extends Controller
         $times = Time::whereNotIn('id', $campeonato->times->pluck('id'))->orderBy('nome')->get();
 
         return view("campeonatos.layouts.{$campeonato->formato}", compact('campeonato', 'times'));
-
-    }
-
-    public function edit(Campeonato $campeonato)
-    {
-        return view('campeonatos.edit', compact('campeonato'));
     }
 
     public function update(Request $request, Campeonato $campeonato)
@@ -106,7 +105,7 @@ class CampeonatoController extends Controller
                     $q->where('time_casa_id', $time->id)
                         ->orWhere('time_fora_id', $time->id);
                 })
-                ->where('status', 'finalizado')
+                ->where('finalizada', true)
                 ->get();
 
             $dados = [
@@ -135,7 +134,7 @@ class CampeonatoController extends Controller
                 $dados['gols_pro'] += $golsPro;
                 $dados['gols_contra'] += $golsContra;
 
-                if ($golsPro > $golsContra++) {
+                if ($golsPro > $golsContra) {
                     $dados['vitorias']++;
                     $dados['pontos'] += 3;
                 } elseif ($golsPro === $golsContra) {
@@ -170,8 +169,6 @@ class CampeonatoController extends Controller
 
     public function chave(Campeonato $campeonato)
     {
-
-
         $partidas = Partida::where('campeonato_id', $campeonato->id)
             ->with('timeCasa', 'timeFora')
             ->orderBy('fase')
@@ -215,7 +212,7 @@ class CampeonatoController extends Controller
         for ($i = 0; $i < $quantidadeGrupos; $i++) {
             $grupo = Grupo::create([
                 'campeonato_id' => $campeonato->id,
-                'nome' => 'Grupo' . $letras[$i],
+                'nome' => 'Grupo ' . $letras[$i],
             ]);
 
             $grupos[] = $grupo;
@@ -227,7 +224,35 @@ class CampeonatoController extends Controller
             $grupos[$grupoIndex]->times()->attach($time->id);
         }
 
-        return back()->with('success', 'Grupos gerados com sucesso');
+        return $this->redirectEditGrupos($campeonato, 'Grupos gerados com sucesso');
+    }
+
+    public function edit(Campeonato $campeonato)
+    {
+        $campeonato->load([
+            'times',
+            'grupos.times',
+            'partidas' => fn ($query) => $query
+                ->with(['timeCasa', 'timeFora'])
+                ->orderBy('data'),
+        ]);
+
+        $timesEmGrupoIds = $campeonato->grupos
+            ->flatMap(fn ($grupo) => $grupo->times)
+            ->pluck('id');
+
+        $timesSemGrupo = $campeonato->times
+            ->whereNotIn('id', $timesEmGrupoIds)
+            ->values();
+
+        return view('campeonatos.edit', [
+            'campeonato' => $campeonato,
+            'timesSemGrupo' => $timesSemGrupo,
+            'classificacao' => $campeonato->formato === 'grupos' ? $this->gerarClassificacaoGrupos($campeonato) : $this->gerarClassificacao($campeonato),
+            'artilheiros' => $this->buscarArtilheiros($campeonato),
+            'assistencias' => $this->buscarAssistencias($campeonato),
+            'classificados' => $campeonato->formato === 'mata_mata' ? $this->gerarClassificados($campeonato) : null,
+        ]);
     }
 
     public function gerarChaveamento(Campeonato $campeonato)
@@ -262,5 +287,239 @@ class CampeonatoController extends Controller
         }
 
         return back()->with('success', 'Chaveamento gerado com sucesso');
+    }
+
+    public function storeGrupo(Request $request, Campeonato $campeonato)
+    {
+        $request->validate([
+            'nome' => 'required|string|max:255',
+        ]);
+
+        Grupo::create([
+            'campeonato_id' => $campeonato->id,
+            'nome' => $request->nome,
+        ]);
+
+        return $this->redirectEditGrupos($campeonato, 'Grupo criado com sucesso.');
+    }
+
+    public function adicionarTimeGrupo(Request $request, Grupo $grupo)
+    {
+        $request->validate([
+            'time_id' => 'required|exists:times,id',
+        ]);
+
+
+        $jaExiste = Grupo::where('campeonato_id', $grupo->campeonato_id)
+            ->whereHas('times', function ($query) use ($request) {
+                $query->where('times.id', $request->time_id);
+            })
+            ->exists();
+
+        if ($jaExiste) {
+            return redirect()
+                ->route('campeonatos.edit', ['campeonato' => $grupo->campeonato, 'tab' => 'grupos'])
+                ->withErrors(['time_id' => 'Esse time já está em outro grupo.']);
+        }
+
+
+        $grupo->times()->attach($request->time_id);
+
+        return $this->redirectEditGrupos($grupo->campeonato, 'Time adicionado ao grupo.');
+    }
+
+    public function removerTimeGrupo(Grupo $grupo, Time $time)
+    {
+        $possuiPartidas = Partida::where('campeonato_id', $grupo->campeonato_id)
+            ->where(function ($query) use ($time) {
+                $query->where('time_casa_id', $time->id)
+                    ->orWhere('time_fora_id', $time->id);
+            })
+            ->exists();
+
+        if ($possuiPartidas) {
+            return redirect()
+                ->route('campeonatos.edit', ['campeonato' => $grupo->campeonato, 'tab' => 'grupos'])
+                ->withErrors(['time' => 'Não é possível remover um time com partidas geradas.']);
+        }
+
+        $grupo->times()->detach($time->id);
+
+        return $this->redirectEditGrupos($grupo->campeonato, 'Time removido do grupo.');
+    }
+
+    public function destroyGrupo(Grupo $grupo)
+    {
+        if ($grupo->times()->exists()) {
+            return redirect()
+                ->route('campeonatos.edit', ['campeonato' => $grupo->campeonato, 'tab' => 'grupos'])
+                ->withErrors(['grupo' => 'Não é possível excluir um grupo com times.']);
+        }
+        $campeonato = $grupo->campeonato;
+        $grupo->delete();
+
+        return $this->redirectEditGrupos($campeonato, 'Grupo excluído.');
+    }
+
+    public function gerarPartidasGrupos(Campeonato $campeonato)
+    {
+        $campeonato->load('grupos.times');
+
+        $campeonato->partidas()->delete();
+
+        foreach ($campeonato->grupos as $grupo) {
+
+            $times = $grupo->times->values();
+
+            for ($i = 0; $i < $times->count(); $i++) {
+                for ($j = $i + 1; $j < $times->count(); $j++) {
+                    Partida::create([
+                        'campeonato_id' => $campeonato->id,
+                        'time_casa_id' => $times[$i]->id,
+                        'time_fora_id' => $times[$j]->id,
+                        'fase' => 'grupos',
+                        'data' => now()->addDays(rand(1, 30)),
+                    ]);
+                }
+            }
+        }
+
+        return $this->redirectEditGrupos($campeonato, 'Partidas geradas com sucesso');
+    }
+
+    public function storePartida(Request $request, Campeonato $campeonato)
+    {
+        $campeonato->load('times');
+
+        $rules = [
+            'time_casa_id' => 'required|exists:times,id|different:time_fora_id',
+            'time_fora_id' => 'required|exists:times,id',
+            'data' => 'required|date',
+        ];
+
+        if ($campeonato->formato === 'mata_mata') {
+            $rules['fase'] = 'required|in:oitavas,quartas,semi,final';
+        }
+
+        $data = $request->validate($rules);
+
+        $timeIds = $campeonato->times->pluck('id');
+
+        if (!$timeIds->contains($data['time_casa_id']) || !$timeIds->contains($data['time_fora_id'])) {
+            return redirect()
+                ->route('campeonatos.edit', ['campeonato' => $campeonato, 'tab' => 'partidas'])
+                ->withErrors(['times' => 'Os dois times precisam estar inscritos neste campeonato.']);
+        }
+
+        $fase = $data['fase'] ?? ($campeonato->formato === 'grupos' ? 'grupos' : null);
+
+        Partida::create([
+            'campeonato_id' => $campeonato->id,
+            'time_casa_id' => $data['time_casa_id'],
+            'time_fora_id' => $data['time_fora_id'],
+            'data' => $data['data'],
+            'fase' => $fase,
+            'gols_casa' => 0,
+            'gols_fora' => 0,
+            'finalizada' => false,
+        ]);
+
+        return redirect()
+            ->route('campeonatos.edit', ['campeonato' => $campeonato, 'tab' => 'partidas'])
+            ->with('success', 'Partida criada com sucesso.');
+    }
+
+    public function gerarMataMata(Campeonato $campeonato) {
+        $jaExiste = Partida::where('campeonato_id', $campeonato)
+            ->where('fase', 'mata')
+            ->exists();
+
+        if ($jaExiste) {
+            return back()->with('error', 'Mata-mata já foi gerado.');
+        }
+
+        $pendentes = Partida::where('campeonato_id', $campeonato->id)
+            ->where('fase', 'grupos')
+            ->where('finalizada', false)
+            ->exists();
+
+        if ($pendentes) {
+            return back()->with('error', 'Ainda existem partidas não finalizadas.');
+        }
+
+        $confrontos = $this->gerarClassificados($campeonato);
+
+        if (empty($confrontos)) {
+            return back()->with('error', 'Não foi possível gerar confrontos.');
+        }
+
+        foreach ($confrontos as $confronto) {
+            Partida::create([
+                'campeonato_id' => $campeonato->id,
+                'times_casa_id' => $confronto['casa']->id,
+                'time_fora_id' => $confronto['fora']->id,
+                'fase' => 'mata_mata',
+                'gols_casa' => 0,
+                'gols_fora' => 0,
+                'finalizada' => false,
+                'data' => now(),
+            ]);
+        }
+
+        return back()->with('success', 'Mata-mata gerado com sucesso');
+    }
+
+    private function redirectEditGrupos(Campeonato $campeonato, string $message)
+    {
+        return redirect()
+            ->route('campeonatos.edit', ['campeonato' => $campeonato, 'tab' => 'grupos'])
+            ->with('success', $message);
+    }
+
+    private function gerarClassificados(Campeonato $campeonato)
+    {
+        $classificacao = $this->gerarClassificacaoGrupos($campeonato);
+
+        $grupos = $campeonato->grupos->values();
+
+        $mataMata = [];
+
+        for ($i = 0; $i < $grupos->count(); $i += 2) {
+            $grupoA = $grupos[$i] ?? null;
+            $grupoB = $grupos[$i + 1] ?? null;
+
+            if (!$grupoA || !$grupoB) {
+                continue;
+            }
+
+            $classA = $classificacao[$grupoA->id] ?? [];
+            $classB = $classificacao[$grupoB->id] ?? [];
+
+            if (count($classA) < 2 || count($classB) < 2) {
+                continue;
+            }
+
+            $mataMata[] = [
+                'casa' => $classA[0]['time'],
+                'fora' => $classB[1]['time'],
+
+                'grupo_casa' => $grupoA->nome,
+                'grupo_fora' => $grupoB->nome,
+
+                'label' => 'Confronto'
+            ];
+
+            $mataMata[] = [
+                'casa' => $classB[0]['time'],
+                'fora' => $classA[1]['time'],
+
+                'grupo_casa' => $grupoB->nome,
+                'grupo_fora' => $grupoA->nome,
+
+                'label' => 'Confronto'
+            ];
+        }
+
+        return $mataMata;
     }
 }

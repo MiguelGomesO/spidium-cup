@@ -2,50 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
-.linha-horizontal {
-    position: absolute;
-    height: 2px;
-    background: linear-gradient(to right, #a855f7, #ec4899);
-    box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+@layer base {
+    :root {
+        --brand-blue: #031d76;
+        --brand-orange: #ff5a00;
+        --brand-purple: #4e2672;
+        --brand-ice: #d1daff;
+        --brand-black: #060c30;
+        --brand-surface: #0a1548;
+        --brand-blue-light: #a6bfff;
+        --brand-orange-sand: #ffc49a;
+        --brand-lilac: #8d79a6;
+        --brand-urban: #5a6780;
+        --brand-asphalt: #1e3b3d;
+    }
+
+    html {
+        @apply h-full;
+    }
+
+    body {
+        @apply text-brand-ice antialiased;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    .bg-brand-gradient {
+        @apply bg-gradient-to-r from-brand-orange via-brand-purple to-brand-blue;
+    }
+
+    .bg-brand-gradient-br {
+        @apply bg-gradient-to-br from-brand-orange via-brand-purple to-brand-blue;
+    }
+
+    .text-brand-gradient {
+        @apply bg-gradient-to-r from-brand-orange via-brand-lilac to-brand-blue-light bg-clip-text text-transparent;
+    }
+
+    .bg-brand-panel {
+        @apply bg-brand-surface border border-brand-ice/10;
+    }
+
+    .btn-brand {
+        @apply bg-brand-gradient text-white font-semibold hover:opacity-90 transition;
+    }
+
+    .ring-brand {
+        @apply focus:ring-2 focus:ring-brand-orange focus:ring-offset-2 focus:ring-offset-brand-black focus:outline-none;
+    }
 }
 
 .linha-horizontal {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(to right, #4e2672, #ff5a00);
+    box-shadow: 0 0 8px rgba(255, 90, 0, 0.45);
+    border-radius: 2px;
     animation: pulseline 2s infinite alternate;
 }
 
-.linha-horizontal {
-    border-radius: 2px;
-}
-
-@keyframes pulseline {
-    from { opacity: 0.4;}
-    to { opacity: 1;}
-}
-
 .linha-vertical {
     position: absolute;
     height: 2px;
-    background: linear-gradient(to bottom, #a855f7, #ec4899);
-    box-shadow: 0 0 25px rgba(236, 72, 153, 0.6);
-}
-
-.linha-vertical {
+    background: linear-gradient(to bottom, #4e2672, #ff5a00);
+    box-shadow: 0 0 25px rgba(78, 38, 114, 0.55);
     border-radius: 2px;
-}
-
-.linha-vertical {
     transform: translateY(0);
-}
-
-.linha-vertical {
     z-index: 0;
 }
 
+@keyframes pulseline {
+    from {
+        opacity: 0.4;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .card-glow {
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+    box-shadow: 0 0 15px rgba(78, 38, 114, 0.45);
 }
 
 .card-hover:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(236, 72, 153, 0.6);
+    box-shadow: 0 0 25px rgba(255, 90, 0, 0.35);
 }
