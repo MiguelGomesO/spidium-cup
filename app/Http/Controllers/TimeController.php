@@ -58,7 +58,10 @@ class TimeController extends Controller
     {
         $time->loadCount(['jogadores', 'campeonatos']);
         $time->load([
-            'jogadores' => fn ($q) => $q->orderByRaw('numero IS NULL')->orderBy('numero')->orderBy('nome'),
+            'jogadores' => fn ($q) => $q->comEstatisticas()
+                ->orderByRaw('numero IS NULL')
+                ->orderBy('numero')
+                ->orderBy('nome'),
         ]);
 
         return view('times.edit', compact('time'));

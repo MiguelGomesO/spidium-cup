@@ -14,7 +14,7 @@ trait CalculaEstatisticasCampeonato
 
         foreach ($campeonato->times as $time) {
             $partidas = Partida::where('campeonato_id', $campeonato->id)
-                ->where('finalizada', true)
+                ->finalizadas()
                 ->where(function ($q) use ($time) {
                     $q->where('time_casa_id', $time->id)
                         ->orWhere('time_fora_id', $time->id);
@@ -76,6 +76,7 @@ trait CalculaEstatisticasCampeonato
     protected function buscarArtilheiros(Campeonato $campeonato)
     {
         return Jogador::with('time')
+            ->comEstatisticas()
             ->whereHas('time.campeonatos', function ($q) use ($campeonato) {
                 $q->where('campeonato_id', $campeonato->id);
             })
@@ -96,6 +97,7 @@ trait CalculaEstatisticasCampeonato
     protected function buscarAssistencias(Campeonato $campeonato)
     {
         return Jogador::with('time')
+            ->comEstatisticas()
             ->whereHas('time.campeonatos', function ($q) use ($campeonato) {
                 $q->where('campeonato_id', $campeonato->id);
             })
@@ -122,7 +124,7 @@ trait CalculaEstatisticasCampeonato
 
             foreach ($grupo->times as $time) {
                 $partidas = Partida::where('campeonato_id', $campeonato->id)
-                    ->where('finalizada', true)
+                    ->finalizadas()
                     ->where(function ($q) use ($time) {
                         $q->where('time_casa_id', $time->id)
                             ->orWhere('time_fora_id', $time->id);

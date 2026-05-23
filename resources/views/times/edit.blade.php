@@ -1,5 +1,8 @@
 ﻿@extends('layouts.app')
 
+@section('page-title', 'Editar time')
+@section('title', 'Editar time — ' . $time->nome)
+
 @section('content')
 
 @php
@@ -11,7 +14,7 @@
 @endphp
 
 <div
-    class="max-w-6xl mx-auto space-y-8"
+    class="page max-w-6xl"
     x-data="timeEdit({
         timeId: {{ $time->id }},
         updateUrl: @js(route('times.update', $time)),
@@ -287,6 +290,10 @@
                     Adicionar
                 </button>
             </div>
+
+            <div class="lg:col-span-12">
+                @include('times.partials.jogador-social-inputs')
+            </div>
         </form>
 
         @if ($time->jogadores->isEmpty())
@@ -297,12 +304,15 @@
         @else
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 @foreach ($time->jogadores as $jogador)
-                    <article class="relative group rounded-2xl border border-brand-ice/10 bg-brand-black/40 p-4 hover:border-brand-lilac/30 transition">
+                    <article
+                        x-data="{ editing: false }"
+                        class="relative group rounded-2xl border border-brand-ice/10 bg-brand-black/40 p-4 hover:border-brand-lilac/30 transition flex flex-col"
+                    >
                         <div class="flex items-start gap-3">
                             <div class="w-12 h-12 shrink-0 rounded-xl bg-brand-purple/20 border border-brand-purple/30 flex items-center justify-center font-black text-lg text-brand-lilac">
                                 {{ $jogador->numero ?? '—' }}
                             </div>
-                            <div class="min-w-0 flex-1">
+                            <div class="min-w-0 flex-1 pr-16">
                                 <p class="font-semibold truncate">{{ $jogador->nome }}</p>
                                 <p class="text-xs text-brand-urban uppercase tracking-wide mt-0.5">
                                     {{ $jogador->posicao ?? 'Sem posição' }}
@@ -310,23 +320,128 @@
                             </div>
                         </div>
 
-                        <form
-                            method="POST"
-                            action="{{ route('jogadores.destroy', $jogador) }}"
-                            class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition"
-                            onsubmit="return confirm('Remover {{ addslashes($jogador->nome) }} do elenco?')"
-                        >
-                            @csrf
-                            @method('DELETE')
+                        <x-jogador-social-links :jogador="$jogador" class="mt-3" />
+                        <x-jogador-stats :jogador="$jogador" />
+
+                        <div class="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition">
                             <button
-                                type="submit"
-                                class="w-8 h-8 rounded-lg bg-brand-orange/20 text-brand-orange hover:bg-brand-orange/30 text-sm transition"
-                                title="Remover jogador"
-                                aria-label="Remover {{ $jogador->nome }}"
+                                type="button"
+                                @click="editing = true"
+                                class="w-8 h-8 rounded-lg bg-brand-blue-light/20 text-brand-blue-light hover:bg-brand-blue-light/30 text-xs font-semibold transition"
+                                title="Editar jogador"
+                                aria-label="Editar {{ $jogador->nome }}"
                             >
-                                ✕
+                                ✎
                             </button>
-                        </form>
+                            <form
+                                method="POST"
+                                action="{{ route('jogadores.destroy', $jogador) }}"
+                                onsubmit="return confirm('Remover {{ addslashes($jogador->nome) }} do elenco?')"
+                            >
+                                @csrf
+                                @method('DELETE')
+                                <button
+                                    type="submit"
+                                    class="w-8 h-8 rounded-lg bg-brand-orange/20 text-brand-orange hover:bg-brand-orange/30 text-sm transition"
+                                    title="Remover jogador"
+                                    aria-label="Remover {{ $jogador->nome }}"
+                                >
+                                    ✕
+                                </button>
+                            </form>
+                        </div>
+
+                        <div
+                            x-show="editing"
+                            x-cloak
+                            class="fixed inset-0 z-[200] flex items-center justify-center p-4"
+                            @keydown.escape.window="editing = false"
+                        >
+                            <div class="absolute inset-0 bg-brand-black/80 backdrop-blur-sm" @click="editing = false"></div>
+
+                            <div
+                                class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-brand-surface border border-brand-ice/10 rounded-3xl shadow-2xl p-6 space-y-4"
+                                @click.stop
+                            >
+                                <div>
+                                    <h3 class="text-lg font-bold">Editar jogador</h3>
+                                    <p class="text-sm text-brand-urban mt-1">{{ $jogador->nome }}</p>
+                                </div>
+
+                                <form
+                                    method="POST"
+                                    action="{{ route('jogadores.update', $jogador) }}"
+                                    class="space-y-4"
+                                >
+                                    @csrf
+                                    @method('PUT')
+
+                                    <div>
+                                        <label for="edit-jogador-nome-{{ $jogador->id }}" class="block text-xs text-brand-urban mb-1">Nome</label>
+                                        <input
+                                            id="edit-jogador-nome-{{ $jogador->id }}"
+                                            name="nome"
+                                            type="text"
+                                            required
+                                            maxlength="255"
+                                            value="{{ old('nome', $jogador->nome) }}"
+                                            class="w-full p-3 rounded-xl bg-brand-black/50 border border-brand-ice/10 text-brand-ice focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/25 outline-none transition"
+                                        >
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label for="edit-jogador-posicao-{{ $jogador->id }}" class="block text-xs text-brand-urban mb-1">Posição</label>
+                                            <select
+                                                id="edit-jogador-posicao-{{ $jogador->id }}"
+                                                name="posicao"
+                                                class="w-full p-3 rounded-xl bg-brand-black/50 border border-brand-ice/10 text-brand-ice focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/25 outline-none transition"
+                                            >
+                                                <option value="">Sem posição</option>
+                                                @foreach (['Goleiro', 'Zagueiro', 'Lateral', 'Volante', 'Meia', 'Atacante'] as $pos)
+                                                    <option value="{{ $pos }}" @selected(old('posicao', $jogador->posicao) === $pos)>{{ $pos }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="edit-jogador-numero-{{ $jogador->id }}" class="block text-xs text-brand-urban mb-1">Número</label>
+                                            <input
+                                                id="edit-jogador-numero-{{ $jogador->id }}"
+                                                name="numero"
+                                                type="number"
+                                                min="0"
+                                                max="99"
+                                                value="{{ old('numero', $jogador->numero) }}"
+                                                class="w-full p-3 rounded-xl bg-brand-black/50 border border-brand-ice/10 text-brand-ice focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/25 outline-none transition"
+                                            >
+                                        </div>
+                                    </div>
+
+                                    @include('times.partials.jogador-social-inputs', [
+                                        'prefix' => 'edit-' . $jogador->id,
+                                        'instagram' => $jogador->instagram,
+                                        'twitter' => $jogador->twitter,
+                                        'twitch' => $jogador->twitch,
+                                    ])
+
+                                    <div class="flex flex-col sm:flex-row gap-2 pt-2">
+                                        <button
+                                            type="submit"
+                                            class="flex-1 min-h-[44px] px-4 rounded-xl bg-brand-gradient font-semibold hover:opacity-90 transition"
+                                        >
+                                            Salvar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            @click="editing = false"
+                                            class="flex-1 min-h-[44px] px-4 rounded-xl bg-brand-ice/10 border border-brand-ice/10 hover:bg-brand-ice/15 transition"
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </article>
                 @endforeach
             </div>
@@ -615,6 +730,7 @@
             },
 
             formatDate(iso) {
+                if (!iso) return '—';
                 try {
                     return new Date(iso).toLocaleString('pt-BR', {
                         day: '2-digit',

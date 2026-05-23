@@ -2,28 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EventosPartida;
+use App\Http\Requests\JogadorRequest;
 use App\Models\Jogador;
 use App\Models\Time;
-use Illuminate\Http\Request;
 
 class JogadorController extends Controller
 {
-    public function store(Request $request, Time $time)
+    public function store(JogadorRequest $request, Time $time)
     {
-        $request->validate([
-            'nome' => 'required',
-            'posicao' => 'nullable',
-            'numero' => 'nullable|integer',
-        ]);
-
-        $time->jogadores()->create([
-            'nome' => $request->nome,
-            'posicao' => $request->posicao,
-            'numero' => $request->numero
-        ]);
+        $time->jogadores()->create($request->validated());
 
         return back()->with('success', 'Jogador adicionado!');
+    }
+
+    public function update(JogadorRequest $request, Jogador $jogador)
+    {
+        $jogador->update($request->validated());
+
+        return back()->with('success', 'Jogador atualizado!');
     }
 
     public function destroy(Jogador $jogador)

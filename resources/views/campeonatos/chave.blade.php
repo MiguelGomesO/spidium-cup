@@ -1,93 +1,46 @@
 ﻿@extends('layouts.app')
 
+@section('page-title', 'Chave')
+@section('title', 'Chave — ' . $campeonato->nome)
+
 @section('content')
 
-<div class="p-8 overflow-x-auto w-full">
-    <h1 class="text-3xl font-bold text-brand-ice mb-10">
-        🏆 {{ $campeonato->nome }}
-    </h1>
+<div class="page">
+    <a href="{{ route('campeonatos.edit', $campeonato) }}" class="inline-flex items-center gap-2 text-sm text-brand-ice/60 hover:text-brand-ice transition min-h-[44px]">
+        ← Voltar
+    </a>
 
-    <div class="flex justify-start">
+    <div class="section-card">
+        <h1 class="page-title">🏆 {{ $campeonato->nome }}</h1>
+        <p class="page-subtitle">Chave eliminatória — arraste para o lado no celular</p>
+    </div>
 
-        <div class="flex gap-24 relative">
+    <div class="bracket-scroll">
+        <div class="bracket-track">
+            @foreach ($partidas as $fase => $jogos)
+                <div class="bracket-column">
+                    <h2 class="text-brand-ice/80 mb-4 uppercase tracking-widest text-xs sm:text-sm text-center">
+                        {{ $fase }}
+                    </h2>
 
-            @foreach($partidas as $fase => $jogos)
-
-            <div class="flex flex-col items-center relative bracket-column">
-
-                <h2 class="text-brand-ice/80 mb-6 uppercase tracking-widest text-sm">
-                    {{ $fase }}
-                </h2>
-
-                <div class="flex flex-col justify-center gap-20 relative">
-
-                    @foreach($jogos as $index => $jogo)
-                    <div class="relative bracket-match">
-
-                        <div class="bg-brand-ice/10 backdrop-blur-xl border border-brand-ice/10 rounded-xl p-4 w-64 shadow-xl transition duration-300 hover:scale-105 hover:shadow-2xl card-glow">
-                            <div class="team {{ $jogo->gols_casa > $jogo->gols_fora ? 'winner' : ''}}">
-                                <span>{{ $jogo->timeCasa->nome }}</span>
-                                <span>{{ $jogo->gols_casa ?? '-' }}</span>
+                    <div class="flex flex-col gap-6 sm:gap-8">
+                        @foreach ($jogos as $jogo)
+                            <div class="bracket-match-card card-hover">
+                                <div class="bracket-team-row {{ $jogo->gols_casa > $jogo->gols_fora ? 'bracket-team-row--winner' : '' }}">
+                                    <span class="truncate flex-1">{{ $jogo->timeCasa->nome }}</span>
+                                    <span class="tabular-nums font-bold">{{ $jogo->gols_casa ?? '—' }}</span>
+                                </div>
+                                <div class="bracket-team-row {{ $jogo->gols_fora > $jogo->gols_casa ? 'bracket-team-row--winner' : '' }}">
+                                    <span class="truncate flex-1">{{ $jogo->timeFora->nome }}</span>
+                                    <span class="tabular-nums font-bold">{{ $jogo->gols_fora ?? '—' }}</span>
+                                </div>
                             </div>
-
-                            <div class="team {{ $jogo->gols_fora > $jogo->gols_casa ? 'winner' : ''}}">
-                                <span>{{ $jogo->timeFora->nome }}</span>
-                                <span>{{ $jogo->gols_fora ?? '-' }}</span>
-                            </div>
-                        </div>
-
-                        <div class="linha-horizontal right-[-48px] top-1/2 w-12"></div>
-
-                        @if($loop->odd)
-                        <div class="linha-vertical right-[-48px] top-full h-20"></div>
-                        @endif
+                        @endforeach
                     </div>
-                    @endforeach
                 </div>
-            </div>
             @endforeach
         </div>
     </div>
 </div>
 
 @endsection
-
-<!-- <style>
-    .match-card {
-        @apply bg-brand-ice/10 backdrop-blur-xl border border-brand-ice/10 rounded-xl p-4 w-64 shadow-xl transition
-        duration-300
-    }
-
-    .match-card:hover {
-        @apply scale-105 shadow-2xl
-    }
-
-    .team {
-        @apply flex justify-between text-brand-ice text-sm py-1
-    }
-
-    .team.winner {
-        @apply text-brand-blue-light font-bold text-shadow: 0 0 8px #22c55e;
-    }
-
-    .connector-right {
-        position: absolute;
-        right: -48px;
-        top: 50%;
-        width: 48px;
-        height: 2px;
-        background: rgba(255, 255, 255, 0.2);
-    }
-
-    .bracket-column:nth-child(2) .bracket-match {
-        margin-top: 60px;
-    }
-
-    .bracket-column:nth-child(3) .bracket-match {
-        margin-top: 120px;
-    }
-
-    .bracket-column:nth-child(4) .bracket-match {
-        margin-top: 240px;
-    }
-</style> -->

@@ -7,17 +7,18 @@ use App\Models\Campeonato;
 use App\Models\Jogador;
 use App\Models\Time;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PartidaController extends Controller
 {
     public function historico(Time $time)
     {
         $partidas = Partida::with(['timeCasa', 'timeFora'])
-            ->where(function($q) use ($time) {
+            ->where(function ($q) use ($time) {
                 $q->where('time_casa_id', $time->id)
                     ->orWhere('time_fora_id', $time->id);
             })
-            ->orderByDesc('data')
+            ->orderByDesc('id')
             ->get();
 
         return response()->json($partidas);
@@ -26,6 +27,7 @@ class PartidaController extends Controller
     public function artilheiros(Time $time)
     {
         $artilheiros = Jogador::where('time_id', $time->id)
+            ->comEstatisticas()
             ->withCount(['eventos as gols' => function ($q) {
                 $q->where('tipo', 'gol');
             }])
@@ -38,7 +40,7 @@ class PartidaController extends Controller
     public function index()
     {
         $partidas = Partida::with(['campeonato', 'timeCasa', 'timeFora'])
-            ->orderByDesc('data')
+            ->orderByDesc('id')
             ->get();
 
         return view('partidas.index', compact('partidas'));
@@ -58,12 +60,7 @@ class PartidaController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'campeonato_id' => 'nullable|exists:campeonatos,id',
-            'time_casa_id' => 'required|different:time_fora_id|exists:times,id',
-            'time_fora_id' => 'required|different:time_casa_id|exists:times,id',
-            'data' => 'required|date',
-        ]);
+        $data = $request->validate($this->partidaRules());
 
         if ($request->boolean('amistoso')) {
             $data['campeonato_id'] = null;
@@ -73,7 +70,7 @@ class PartidaController extends Controller
 
         return redirect()
             ->route('partidas.show', $partida)
-            ->with('success', 'Partida criada! Registre os gols na tela ao vivo.');
+            ->with('success', 'Partida criada! Registre os gols na súmula.');
     }
 
     public function edit(Partida $partida)
@@ -84,7 +81,7 @@ class PartidaController extends Controller
 
         return view('partidas.edit', [
             'partida' => $partida,
-            'campeonatos' => $campeonatos, 
+            'campeonatos' => $campeonatos,
             'times' => $times,
             'timesForSelect' => $this->timesForSelect($times),
         ]);
@@ -92,18 +89,13 @@ class PartidaController extends Controller
 
     public function update(Request $request, Partida $partida)
     {
-        $data = $request->validate([
-            'campeonato_id' => 'nullable|exists:campeonatos,id',
-            'time_casa_id' => 'required|different:time_fora_id|exists:times,id',
-            'time_fora_id' => 'required|different:time_casa_id|exists:times,id',
-            'data' => 'required|date',
-        ]);
+        $data = $request->validate($this->partidaRules());
 
         if ($request->boolean('amistoso')) {
             $data['campeonato_id'] = null;
         }
 
-        if ($partida->finalizada) {
+        if ($partida->isFinalizada()) {
             unset($data['time_casa_id'], $data['time_fora_id']);
         }
 
@@ -112,6 +104,27 @@ class PartidaController extends Controller
         return redirect()
             ->route('partidas.show', $partida)
             ->with('success', 'Partida atualizada com sucesso.');
+    }
+
+    public function atualizarStatus(Request $request, Partida $partida)
+    {
+        $request->validate([
+            'status' => ['required', Rule::in(array_keys(Partida::statuses()))],
+        ]);
+
+        $partida->update(['status' => $request->status]);
+
+        return back()->with('success', 'Status atualizado para ' . $partida->statusLabel() . '.');
+    }
+
+    private function partidaRules(): array
+    {
+        return [
+            'campeonato_id' => 'nullable|exists:campeonatos,id',
+            'time_casa_id' => 'required|different:time_fora_id|exists:times,id',
+            'time_fora_id' => 'required|different:time_casa_id|exists:times,id',
+            'status' => ['required', Rule::in(array_keys(Partida::statuses()))],
+        ];
     }
 
     private function timesForSelect($times)
@@ -136,15 +149,17 @@ class PartidaController extends Controller
             'timeCasa.jogadores',
             'timeFora.jogadores',
             'eventos.jogador',
-            'eventos.assistencia'
+            'eventos.assistencia',
+            'participacoes',
         ]);
 
         return view('partidas.show', compact('partida'));
     }
 
-    public function finalizar(Partida $partida) {
+    public function finalizar(Partida $partida)
+    {
         $partida->update([
-            'finalizada' => true,
+            'status' => Partida::STATUS_FINALIZADA,
         ]);
 
         return back()->with('success', 'Partida finalizada com sucesso');

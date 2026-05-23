@@ -105,7 +105,7 @@ class CampeonatoController extends Controller
                     $q->where('time_casa_id', $time->id)
                         ->orWhere('time_fora_id', $time->id);
                 })
-                ->where('finalizada', true)
+                ->finalizadas()
                 ->get();
 
             $dados = [
@@ -234,7 +234,7 @@ class CampeonatoController extends Controller
             'grupos.times',
             'partidas' => fn ($query) => $query
                 ->with(['timeCasa', 'timeFora'])
-                ->orderBy('data'),
+                ->orderByDesc('id'),
         ]);
 
         $timesEmGrupoIds = $campeonato->grupos
@@ -282,7 +282,7 @@ class CampeonatoController extends Controller
                 'time_casa_id' => $times[$i]->id,
                 'time_fora_id' => $times[$i + 1]->id,
                 'fase' => $fase,
-                'data' => now()
+                'status' => Partida::STATUS_EM_ANDAMENTO,
             ]);
         }
 
@@ -378,7 +378,7 @@ class CampeonatoController extends Controller
                         'time_casa_id' => $times[$i]->id,
                         'time_fora_id' => $times[$j]->id,
                         'fase' => 'grupos',
-                        'data' => now()->addDays(rand(1, 30)),
+                        'status' => Partida::STATUS_EM_ANDAMENTO,
                     ]);
                 }
             }
@@ -394,7 +394,7 @@ class CampeonatoController extends Controller
         $rules = [
             'time_casa_id' => 'required|exists:times,id|different:time_fora_id',
             'time_fora_id' => 'required|exists:times,id',
-            'data' => 'required|date',
+            'status' => 'required|in:finalizada,ao_vivo,em_andamento',
         ];
 
         if ($campeonato->formato === 'mata_mata') {
@@ -417,11 +417,10 @@ class CampeonatoController extends Controller
             'campeonato_id' => $campeonato->id,
             'time_casa_id' => $data['time_casa_id'],
             'time_fora_id' => $data['time_fora_id'],
-            'data' => $data['data'],
             'fase' => $fase,
             'gols_casa' => 0,
             'gols_fora' => 0,
-            'finalizada' => false,
+            'status' => $data['status'],
         ]);
 
         return redirect()
@@ -440,7 +439,7 @@ class CampeonatoController extends Controller
 
         $pendentes = Partida::where('campeonato_id', $campeonato->id)
             ->where('fase', 'grupos')
-            ->where('finalizada', false)
+            ->naoFinalizadas()
             ->exists();
 
         if ($pendentes) {
@@ -456,13 +455,12 @@ class CampeonatoController extends Controller
         foreach ($confrontos as $confronto) {
             Partida::create([
                 'campeonato_id' => $campeonato->id,
-                'times_casa_id' => $confronto['casa']->id,
+                'time_casa_id' => $confronto['casa']->id,
                 'time_fora_id' => $confronto['fora']->id,
                 'fase' => 'mata_mata',
                 'gols_casa' => 0,
                 'gols_fora' => 0,
-                'finalizada' => false,
-                'data' => now(),
+                'status' => Partida::STATUS_EM_ANDAMENTO,
             ]);
         }
 

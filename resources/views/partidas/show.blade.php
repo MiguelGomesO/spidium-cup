@@ -2,9 +2,9 @@
 
 @section('content')
 
-<div class="max-w-4xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-3">
-    <a href="{{ route('partidas.index') }}" class="text-sm text-brand-ice/60 hover:text-brand-ice transition">← Partidas</a>
-    <a href="{{ route('partidas.edit', $partida) }}" class="text-sm px-4 py-2 rounded-xl bg-brand-ice/10 border border-brand-ice/10 hover:bg-brand-ice/15 transition">
+<div class="max-w-4xl mx-auto mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <a href="{{ route('partidas.index') }}" class="inline-flex items-center min-h-[44px] text-sm text-brand-ice/60 hover:text-brand-ice transition">← Partidas</a>
+    <a href="{{ route('partidas.edit', $partida) }}" class="btn-ghost text-sm w-full sm:w-auto text-center">
         Editar partida
     </a>
 </div>
@@ -75,60 +75,62 @@
         }
     }">
 
-    <div class="bg-brand-black/50 backdrop-blur-xl border border-brand-ice/10 rounded-2xl p-6 mb-4">
-
-        <div class="text-center text-brand-ice/60 text-sm mb-4">
-            {{ \Carbon\Carbon::parse($partida->data)->format('d/m/Y H:i') }}
+    <div class="section-card mb-4">
+        <div class="flex justify-center mb-4">
+            <x-partida-status-badge :partida="$partida" :pulse="true" />
         </div>
 
-        <div class="flex items-center justify-between">
-
-            <div class="flex flex-col items-center gap-2 w-1/3">
+        <div class="match-scoreboard">
+            <div class="match-team">
                 @if($partida->timeCasa->logo)
-                <img src="{{ asset('storage/'.$partida->timeCasa->logo) }}" class="w-16 h-16 object-contain">
+                    <img src="{{ asset('storage/'.$partida->timeCasa->logo) }}" class="match-team__logo" alt="">
                 @endif
-
-                <span class="font-semibold text-center">
-                    {{ $partida->timeCasa->nome }}
-                </span>
+                <span class="match-team__name">{{ $partida->timeCasa->nome }}</span>
             </div>
-
-            <div class="text-4xl font-bold text-center">
-                @if ($partida->finalizada)
-                    <div class="text-center mb-4">
-                        <span class="bg-brand-orange/15 text-brand-orange border border-brand-orange/30 px-4 py-1 rounded-full text-xs font-bold tracking-wide">Finalizada</span>
-                    </div>
-                @endif
-                <span x-text="golsCasa"></span>
-                <span class="text-brand-ice/60">x</span>
-                <span x-text="golsFora"></span>
+            <div class="match-placar">
+                <span class="match-placar__score"><span x-text="golsCasa"></span> × <span x-text="golsFora"></span></span>
             </div>
-
-            <div class="flex flex-col items-center gap-2 w-1/3">
+            <div class="match-team match-team--away">
                 @if($partida->timeFora->logo)
-                <img src="{{ asset('storage/'.$partida->timeFora->logo) }}" class="w-16 h-16 object-contain">
+                    <img src="{{ asset('storage/'.$partida->timeFora->logo) }}" class="match-team__logo" alt="">
                 @endif
+                <span class="match-team__name">{{ $partida->timeFora->nome }}</span>
+            </div>
+        </div>
 
-                <span class="font-semibold text-center">
-                    {{ $partida->timeFora->nome }}
-                </span>
+        <p class="text-center text-brand-ice/50 text-sm mt-4">
+            {{ $partida->campeonato->nome ?? 'Amistoso' }}
+        </p>
+
+        @if (! $partida->isFinalizada())
+            <div class="flex flex-col sm:flex-row flex-wrap gap-3 mt-4">
+                <button @click="openGol = true" class="bg-green-600 hover:bg-green-500 transition px-4 py-2 rounded-xl font-medium">
+                    📊 Adicionar eventos
+                </button>
+
+                <button @click="openFinalizar = true" class="bg-brand-orange hover:bg-brand-purple transition px-4 py-2 rounded-xl font-medium">
+                    🏁 Finalizar partida
+                </button>
             </div>
 
-        </div>
-
-        <div class="text-center text-brand-ice/50 text-sm mt-4">
-            {{ $partida->campeonato->nome ?? 'Amistoso' }}
-        </div>
-
-        <div x-show="!{{ $partida->finalizada ? 'true' : 'false' }}" class="flex gap-3 mt-4">
-            <button @click="openGol = true" class="bg-green-600 px-4 py-2 rounded">
-                📊 Adicionar Eventos
-            </button>
-
-            <button @click="openFinalizar = true" class="bg-brand-orange hover:bg-brand-purple transition px-4 py-2 rounded font-medium">
-                🏁 Finalizar Partida
-            </button>
-        </div>
+            <div class="mt-4 pt-4 border-t border-brand-ice/10">
+                <p class="text-xs text-brand-urban mb-2">Alterar status</p>
+                <div class="flex flex-wrap gap-2">
+                    @foreach (\App\Models\Partida::statuses() as $value => $label)
+                        @if ($value !== $partida->status)
+                            <form method="POST" action="{{ route('partidas.status', $partida) }}">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="status" value="{{ $value }}">
+                                <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-ice/10 border border-brand-ice/10 hover:bg-brand-ice/15 transition">
+                                    {{ $label }}
+                                </button>
+                            </form>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
     </div>
 
@@ -204,13 +206,14 @@
         </div>
     </div>
 
+    @include('partidas.partials.desempenho-jogadores')
 
     <template x-if="openGol">
         <div class="fixed inset-0 z-[9999] flex items-center justify-center">
 
             <div @click="openGol = false" class="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
 
-            <div class="relative bg-brand-surface w-full max-w-md rounded-2xl border border-brand-ice/10 shadow-2xl p-6 space-y-5">
+            <div class="relative bg-brand-surface w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-brand-ice/10 shadow-2xl p-4 sm:p-6 space-y-5 mx-2">
 
                 <div class="text-center">
                     <h2 class="text-lg font-semibold">Adicionar Gol ⚽</h2>

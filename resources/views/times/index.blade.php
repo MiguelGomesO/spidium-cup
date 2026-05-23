@@ -1,17 +1,18 @@
 ﻿@extends('layouts.app')
 
+@section('page-title', 'Times')
+@section('title', 'Times')
+
 @section('content')
 
-<div class="max-w-7xl mx-auto space-y-8">
+<div class="page">
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
         <div>
             <span class="inline-block px-3 py-1 rounded-full bg-brand-ice/10 border border-brand-ice/10 text-xs text-brand-ice/60 mb-3">
                 Elenco
             </span>
-            <h1 class="text-3xl lg:text-4xl font-black text-brand-gradient">
-                Times
-            </h1>
-            <p class="text-brand-ice/60 mt-2 max-w-lg">
+            <h1 class="page-title">Times</h1>
+            <p class="page-subtitle max-w-lg">
                 Gerencie escudos, jogadores e inscrições nos campeonatos.
             </p>
         </div>

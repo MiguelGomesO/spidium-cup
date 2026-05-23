@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EventosPartida;
+use App\Models\ParticipacaoPartida;
 use App\Models\Partida;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -43,6 +44,18 @@ class EventosPartidaController extends Controller
             'time_id' => $request->time_id,
             'minuto' => $request->minuto,
         ]);
+
+        ParticipacaoPartida::firstOrCreate([
+            'partida_id' => $request->partida_id,
+            'jogador_id' => $request->jogador_id,
+        ]);
+
+        if ($request->filled('assistencia_id')) {
+            ParticipacaoPartida::firstOrCreate([
+                'partida_id' => $request->partida_id,
+                'jogador_id' => $request->assistencia_id,
+            ]);
+        }
 
         if($data['tipo'] === 'gol') {
             $this->atualizarPlacar($data['partida_id']);

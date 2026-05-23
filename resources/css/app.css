@@ -15,14 +15,17 @@
         --brand-lilac: #8d79a6;
         --brand-urban: #5a6780;
         --brand-asphalt: #1e3b3d;
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     html {
         @apply h-full;
+        -webkit-tap-highlight-color: transparent;
     }
 
     body {
         @apply text-brand-ice antialiased;
+        text-size-adjust: 100%;
     }
 
     [x-cloak] {
@@ -48,11 +51,192 @@
     }
 
     .btn-brand {
-        @apply bg-brand-gradient text-white font-semibold hover:opacity-90 transition;
+        @apply inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 bg-brand-gradient text-white font-semibold rounded-xl hover:opacity-90 active:scale-[0.98] transition;
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-xl bg-brand-ice/10 border border-brand-ice/10 font-medium hover:bg-brand-ice/15 active:scale-[0.98] transition;
     }
 
     .ring-brand {
         @apply focus:ring-2 focus:ring-brand-orange focus:ring-offset-2 focus:ring-offset-brand-black focus:outline-none;
+    }
+
+    /* Layout */
+    .page {
+        @apply w-full max-w-7xl mx-auto space-y-5 sm:space-y-6 lg:space-y-8;
+    }
+
+    .page-hero {
+        @apply relative overflow-hidden rounded-2xl sm:rounded-3xl border border-brand-ice/10 bg-brand-surface p-4 sm:p-6 lg:p-8;
+    }
+
+    .page-title {
+        @apply text-2xl sm:text-3xl lg:text-4xl font-black text-brand-gradient leading-tight;
+    }
+
+    .page-subtitle {
+        @apply text-sm sm:text-base text-brand-ice/60 mt-1 sm:mt-2 leading-relaxed;
+    }
+
+    .section-card {
+        @apply bg-brand-surface border border-brand-ice/10 rounded-2xl sm:rounded-3xl p-4 sm:p-6;
+    }
+
+    /* Forms — 16px evita zoom no iOS */
+    .input-touch {
+        @apply w-full min-h-[48px] px-4 py-3 text-base rounded-xl bg-brand-black/50 border border-brand-ice/10 text-brand-ice placeholder:text-brand-urban focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/25 outline-none transition;
+    }
+
+    .select-touch {
+        @apply input-touch appearance-none;
+    }
+
+  /* Tabelas */
+    .table-scroll {
+        @apply overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(209, 218, 255, 0.25) transparent;
+    }
+
+    .table-scroll table {
+        @apply w-full min-w-[640px];
+    }
+
+    .table-scroll--wide table {
+        @apply min-w-[800px];
+    }
+
+    .table-scroll::after {
+        content: '';
+        @apply pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-brand-surface to-transparent sm:hidden;
+    }
+
+    .table-wrap {
+        @apply relative;
+    }
+
+    /* Tabs horizontais (estilo app esportivo) */
+    .tabs-scroll {
+        @apply flex gap-2 overflow-x-auto pb-1 -mx-1 px-1;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+    }
+
+    .tabs-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tab-pill {
+        @apply shrink-0 snap-start min-h-[44px] px-4 sm:px-5 py-2.5 rounded-xl text-sm font-medium transition whitespace-nowrap;
+    }
+
+    .tab-pill--active {
+        @apply bg-brand-gradient text-brand-ice shadow-lg shadow-brand-purple/20;
+    }
+
+    .tab-pill--idle {
+        @apply bg-brand-ice/5 text-brand-ice/70 hover:bg-brand-ice/10;
+    }
+
+    /* Partida — placar centralizado */
+    .match-scoreboard {
+        @apply flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6;
+    }
+
+    .match-team {
+        @apply flex items-center gap-3 min-w-0 flex-1;
+    }
+
+    .match-team--away {
+        @apply sm:flex-row-reverse sm:text-right;
+    }
+
+    .match-team__logo {
+        @apply w-10 h-10 sm:w-12 sm:h-12 object-contain shrink-0;
+    }
+
+    .match-team__name {
+        @apply font-semibold text-sm sm:text-base truncate;
+    }
+
+    .match-placar {
+        @apply flex flex-col items-center justify-center shrink-0 px-2 py-2 rounded-2xl bg-brand-black/40 border border-brand-ice/10 min-w-[100px];
+    }
+
+    .match-placar__score {
+        @apply text-3xl sm:text-4xl font-black tabular-nums text-brand-orange-sand tracking-wide;
+    }
+
+    /* Chave mata-mata */
+    .bracket-scroll {
+        @apply overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+    }
+
+    .bracket-track {
+        @apply flex gap-8 sm:gap-12 lg:gap-16 min-w-max pr-4;
+    }
+
+    .bracket-column {
+        @apply flex flex-col items-center snap-center shrink-0;
+    }
+
+    .bracket-match-card {
+        @apply bg-brand-ice/10 backdrop-blur-xl border border-brand-ice/10 rounded-xl p-3 sm:p-4 w-[min(100vw-3rem,16rem)] sm:w-64 shadow-xl;
+    }
+
+    .bracket-team-row {
+        @apply flex justify-between items-center gap-2 text-sm py-1.5 border-b border-brand-ice/5 last:border-0;
+    }
+
+    .bracket-team-row--winner {
+        @apply text-brand-blue-light font-bold;
+    }
+
+    /* Nav lateral mobile */
+    .nav-drawer-link {
+        @apply flex items-center gap-3 min-h-[48px] px-4 py-3 rounded-xl text-base font-medium hover:bg-brand-ice/10 active:bg-brand-ice/15 transition;
+    }
+
+    .nav-drawer-link--active {
+        @apply bg-brand-ice/15 border border-brand-ice/10;
+    }
+
+    /* Toast mobile */
+    .toast-mobile {
+        @apply fixed z-[200] pointer-events-none left-4 right-4 bottom-[calc(1rem+var(--safe-bottom))] sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-sm;
+    }
+
+    /* Standings card (mobile) */
+    .standing-card {
+        @apply flex items-center gap-3 p-4 rounded-2xl bg-brand-ice/5 border border-brand-ice/5;
+    }
+
+    .standing-card__pos {
+        @apply w-8 h-8 shrink-0 rounded-lg bg-brand-black/50 flex items-center justify-center text-sm font-bold text-brand-ice/70;
+    }
+
+    .grid-cards {
+        @apply grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6;
+    }
+
+    .grid-stats {
+        @apply grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4;
+    }
+
+    .stat-box {
+        @apply bg-brand-black/40 border border-brand-ice/10 rounded-xl sm:rounded-2xl p-3 sm:p-4;
+    }
+
+    .stat-box__value {
+        @apply text-xl sm:text-2xl lg:text-3xl font-black mt-0.5 sm:mt-1 tabular-nums;
+    }
+
+    .stat-box__label {
+        @apply text-[10px] sm:text-xs text-brand-urban uppercase tracking-wide;
     }
 }
 
@@ -89,6 +273,12 @@
 }
 
 .card-hover:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
     box-shadow: 0 0 25px rgba(255, 90, 0, 0.35);
+}
+
+@media (min-width: 768px) {
+    .card-hover:hover {
+        transform: scale(1.05);
+    }
 }

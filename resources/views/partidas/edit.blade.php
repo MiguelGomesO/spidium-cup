@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('page-title', 'Editar partida')
+@section('title', 'Editar partida')
+
 @section('content')
 
 @php
@@ -15,7 +18,7 @@
     ];
 @endphp
 
-<div class="max-w-5xl mx-auto space-y-8">
+<div class="page max-w-5xl">
     <a href="{{ route('partidas.index') }}" class="inline-flex items-center gap-2 text-sm text-brand-ice/60 hover:text-brand-ice transition">
         <span aria-hidden="true">←</span>
         Voltar às partidas
@@ -35,21 +38,13 @@
                     Placar atual: <strong class="text-brand-orange-sand">{{ $partida->gols_casa }} × {{ $partida->gols_fora }}</strong>
                 </p>
             </div>
-            @if ($partida->finalizada)
-                <span class="px-4 py-2 rounded-full bg-brand-orange/15 border border-brand-orange/25 text-sm text-brand-orange-sand font-semibold shrink-0">
-                    Partida finalizada
-                </span>
-            @else
-                <a href="{{ route('partidas.show', $partida) }}" class="px-5 py-2.5 rounded-xl bg-brand-gradient text-sm font-semibold hover:opacity-90 transition shrink-0 text-center">
-                    Ir para súmula ao vivo
-                </a>
-            @endif
+            <x-partida-status-badge :partida="$partida" :pulse="true" class="shrink-0" />
         </div>
     </div>
 
-    @if ($partida->finalizada)
+    @if ($partida->isFinalizada())
         <div class="bg-brand-orange/10 border border-brand-orange/25 text-brand-orange-sand text-sm rounded-2xl px-5 py-4">
-            Esta partida já foi finalizada. Você pode alterar campeonato, data e vínculo, mas os times não podem mais ser trocados.
+            Esta partida está finalizada. Você pode alterar campeonato e status, mas os times não podem mais ser trocados.
         </div>
     @endif
 
@@ -90,17 +85,18 @@
             </div>
         </div>
 
-        <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6 lg:p-8">
-            <div class="mb-6">
-                <h2 class="text-lg font-bold">Confronto e horário</h2>
+        <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl p-6 lg:p-8 space-y-6">
+            <div>
+                <h2 class="text-lg font-bold">Confronto e status</h2>
             </div>
+
+            <x-partidas.status-select :selected="old('status', $partida->status)" />
 
             <x-partidas.form-times
                 :times-for-select="$timesForSelect"
                 :casa="$casa"
                 :fora="$fora"
-                :data-default="old('data', $partida->data->format('Y-m-d\TH:i'))"
-                :readonly-teams="$partida->finalizada"
+                :readonly-teams="$partida->isFinalizada()"
             >
                 <div class="flex flex-col sm:flex-row gap-3 pt-4">
                     <button
