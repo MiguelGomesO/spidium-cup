@@ -228,15 +228,15 @@
     }
 
     .stat-box {
-        @apply bg-brand-black/40 border border-brand-ice/10 rounded-xl sm:rounded-2xl p-3 sm:p-4;
+        @apply min-w-0 overflow-hidden bg-brand-black/40 border border-brand-ice/10 rounded-xl sm:rounded-2xl p-3 sm:p-4;
     }
 
     .stat-box__value {
-        @apply text-xl sm:text-2xl lg:text-3xl font-black mt-0.5 sm:mt-1 tabular-nums;
+        @apply text-xl sm:text-2xl font-black mt-0.5 sm:mt-1 tabular-nums leading-none truncate;
     }
 
     .stat-box__label {
-        @apply text-[10px] sm:text-xs text-brand-urban uppercase tracking-wide;
+        @apply text-[10px] sm:text-xs text-brand-urban uppercase tracking-wide truncate;
     }
 }
 

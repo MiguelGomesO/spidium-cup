@@ -38,7 +38,7 @@
                 </div>
             </div>
 
-            <div class="grid-stats w-full lg:w-[380px] shrink-0">
+            <div class="grid-stats grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 w-full lg:w-[380px] shrink-0">
                 <div class="stat-box">
                     <p class="stat-box__label">Campeonatos</p>
                     <p class="stat-box__value text-brand-ice">{{ $campeonatos }}</p>
