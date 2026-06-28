@@ -226,6 +226,26 @@
         @apply bg-brand-ice/15 border border-brand-ice/10;
     }
 
+    .sidebar-toggle-btn {
+        @apply flex items-center justify-center w-10 h-10 rounded-xl bg-brand-ice/10 border border-brand-ice/10 text-brand-ice/80 hover:text-brand-ice hover:bg-brand-ice/15 transition;
+    }
+
+    .sidebar-toggle-btn__icon {
+        @apply w-5 h-5;
+    }
+
+    .app-sidebar {
+        @apply will-change-[width,transform];
+    }
+
+    .app-sidebar__inner {
+        @apply w-full transition-[width] duration-300 ease-in-out;
+    }
+
+    .app-sidebar__head {
+        @apply min-h-[4.5rem];
+    }
+
     /* Toast mobile */
     .toast-mobile {
         @apply fixed z-[200] pointer-events-none left-4 right-4 bottom-[calc(1rem+var(--safe-bottom))] sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-sm;
@@ -658,14 +678,23 @@
 
     /* Landing — resultados públicos */
     .landing-hero {
-        @apply relative overflow-hidden rounded-2xl sm:rounded-3xl border border-brand-ice/10 p-5 sm:p-6 lg:p-8;
+        @apply relative overflow-hidden rounded-2xl sm:rounded-3xl border border-brand-ice/10;
         background: linear-gradient(
-            115deg,
-            rgba(var(--brand-purple-rgb), 0.4) 0%,
-            rgba(var(--brand-blue-rgb), 0.92) 38%,
-            var(--brand-surface) 62%,
+            145deg,
+            rgba(var(--brand-purple-rgb), 0.45) 0%,
+            rgba(var(--brand-blue-rgb), 0.85) 42%,
+            var(--brand-surface) 72%,
             var(--brand-black) 100%
         );
+    }
+
+    .landing-hero__grid {
+        @apply pointer-events-none absolute inset-0 opacity-[0.07];
+        background-image:
+            linear-gradient(rgba(var(--brand-ice-rgb), 0.5) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(var(--brand-ice-rgb), 0.5) 1px, transparent 1px);
+        background-size: 32px 32px;
+        mask-image: radial-gradient(ellipse 80% 70% at 30% 50%, black 20%, transparent 75%);
     }
 
     .landing-hero__ambient {
@@ -673,57 +702,166 @@
     }
 
     .landing-hero__ambient--purple {
-        @apply -left-10 top-1/3 h-48 w-48 -translate-y-1/2 sm:h-64 sm:w-64;
-        background: radial-gradient(circle, rgba(var(--brand-purple-rgb), 0.5) 0%, transparent 70%);
+        @apply -left-16 top-0 h-56 w-56 sm:h-72 sm:w-72;
+        background: radial-gradient(circle, rgba(var(--brand-purple-rgb), 0.55) 0%, transparent 70%);
     }
 
     .landing-hero__ambient--orange {
-        @apply -left-4 bottom-2 h-40 w-40 sm:h-52 sm:w-52;
-        background: radial-gradient(circle, rgba(var(--brand-orange-rgb), 0.28) 0%, transparent 70%);
-    }
-
-    .landing-hero__ambient--spot {
-        @apply left-[18%] top-1/2 h-28 w-48 -translate-y-1/2 opacity-50;
-        background: radial-gradient(ellipse, rgba(var(--brand-orange-sand-rgb), 0.18) 0%, transparent 65%);
+        @apply right-0 bottom-0 h-48 w-48 sm:h-64 sm:w-64 translate-x-1/4 translate-y-1/4;
+        background: radial-gradient(circle, rgba(var(--brand-orange-rgb), 0.35) 0%, transparent 70%);
     }
 
     .landing-hero__inner {
-        @apply relative z-10 grid items-center gap-4 sm:gap-5 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-1 xl:gap-2;
+        @apply relative z-10 grid gap-8 p-5 sm:p-8 lg:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-10 xl:gap-14 items-center;
     }
 
-    .landing-hero__visual {
-        @apply relative order-2 lg:order-1 flex justify-center lg:justify-end;
+    .landing-hero__showcase {
+        @apply flex justify-center lg:justify-end order-2 lg:order-2;
     }
 
-    .landing-hero__visual::after {
-        content: '';
-        @apply pointer-events-none absolute inset-y-6 right-0 w-8 z-20 hidden lg:block;
-        background: linear-gradient(to right, transparent, rgba(var(--brand-blue-rgb), 0.75));
+    .landing-hero__frame {
+        @apply relative aspect-square w-full max-w-[14rem] sm:max-w-[16rem] lg:max-w-[18rem] rounded-full overflow-hidden border border-brand-orange/30;
+        box-shadow:
+            0 24px 48px rgba(var(--brand-black-rgb), 0.45),
+            inset 0 0 0 1px rgba(var(--brand-ice-rgb), 0.08);
     }
 
-    .landing-hero__image {
-        @apply relative z-10 h-auto max-h-[min(52vh,22rem)] w-auto object-contain object-center lg:object-right;
-        max-width: min(85vw, 16rem);
-        filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.4));
+    .landing-hero__frame-glow {
+        @apply absolute -inset-6 rounded-full -z-10;
+        background: radial-gradient(
+            circle,
+            rgba(var(--brand-orange-rgb), 0.4) 0%,
+            rgba(var(--brand-purple-rgb), 0.22) 45%,
+            transparent 72%
+        );
+        filter: blur(28px);
     }
 
-    @media (min-width: 640px) {
-        .landing-hero__image {
-            max-width: min(70vw, 18rem);
-            max-height: min(48vh, 24rem);
-        }
+    .landing-hero__frame-ring {
+        @apply absolute inset-0 rounded-full pointer-events-none border-2 border-brand-orange/20;
+        background: linear-gradient(
+            145deg,
+            rgba(var(--brand-orange-rgb), 0.1) 0%,
+            rgba(var(--brand-purple-rgb), 0.06) 50%,
+            transparent 100%
+        );
+        box-shadow: inset 0 0 36px rgba(var(--brand-purple-rgb), 0.18);
     }
 
-    @media (min-width: 1024px) {
-        .landing-hero__image {
-            max-width: 18rem;
-            max-height: 26rem;
-            margin-right: -0.25rem;
-        }
+    .landing-hero__trophy {
+        @apply relative z-10 w-full h-full object-cover object-[center_22%];
+        filter: drop-shadow(0 8px 20px rgba(var(--brand-black-rgb), 0.35));
     }
 
     .landing-hero__content {
-        @apply order-1 lg:order-2 lg:pl-1 xl:pl-2;
+        @apply order-1 lg:order-1 flex flex-col min-w-0;
+    }
+
+    .landing-hero__badges {
+        @apply flex flex-wrap items-center gap-2 mb-4 sm:mb-5;
+    }
+
+    .landing-hero__badge {
+        @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border;
+    }
+
+    .landing-hero__badge--live {
+        @apply bg-brand-orange/15 text-brand-orange-sand border-brand-orange/25;
+    }
+
+    .landing-hero__badge-dot {
+        @apply w-1.5 h-1.5 rounded-full bg-brand-orange-sand animate-pulse;
+    }
+
+    .landing-hero__badge--org {
+        @apply bg-brand-ice/5 text-brand-ice/60 border-brand-ice/10;
+    }
+
+    .landing-hero__title {
+        @apply text-2xl sm:text-3xl lg:text-[2.5rem] font-black leading-[1.15] tracking-tight;
+    }
+
+    .landing-hero__lead {
+        @apply mt-4 max-w-xl text-sm sm:text-base text-brand-ice/60 leading-relaxed;
+    }
+
+    .landing-hero__stats {
+        @apply mt-6 grid grid-cols-3 gap-3 max-w-md;
+    }
+
+    .landing-hero__stat {
+        @apply rounded-xl border border-brand-ice/10 bg-brand-black/30 px-3 py-3 text-center backdrop-blur-sm;
+    }
+
+    .landing-hero__stat-value {
+        @apply block text-xl sm:text-2xl font-black tabular-nums text-brand-orange-sand leading-none;
+    }
+
+    .landing-hero__stat-label {
+        @apply block mt-1 text-[10px] uppercase tracking-wider text-brand-ice/45;
+    }
+
+    .landing-hero__actions {
+        @apply mt-6 sm:mt-8 flex flex-col sm:flex-row flex-wrap gap-3;
+    }
+
+    /* Layout amplo da página de partida */
+    .partida-show {
+        @apply w-screen relative left-1/2 -translate-x-1/2 px-4 sm:px-6 lg:px-8;
+    }
+
+    .partida-show__inner {
+        @apply max-w-6xl mx-auto;
+    }
+
+    /* Melhores momentos da partida */
+    .momentos-grid {
+        @apply grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6;
+    }
+
+    .momento-card {
+        @apply relative overflow-hidden rounded-2xl border border-brand-ice/10 bg-brand-black/30;
+    }
+
+    .momento-card--wide {
+        @apply sm:col-span-2;
+    }
+
+    .momento-card__media {
+        @apply relative aspect-video bg-brand-black/50 overflow-hidden;
+    }
+
+    .momento-card--wide .momento-card__media {
+        @apply sm:aspect-[2.1/1];
+    }
+
+    .momento-card__image {
+        @apply w-full h-full object-cover;
+    }
+
+    .momento-card__video,
+    .momento-card__twitch {
+        @apply absolute inset-0 w-full h-full border-0;
+    }
+
+    .momento-card__video {
+        @apply object-cover;
+    }
+
+    .momento-card__body {
+        @apply p-4 border-t border-brand-ice/10;
+    }
+
+    .momento-card__actions {
+        @apply absolute top-2 right-2 sm:opacity-0 transition;
+    }
+
+    .momento-card:hover .momento-card__actions {
+        @apply opacity-100;
+    }
+
+    .momento-card__delete {
+        @apply min-h-[36px] min-w-[36px] rounded-lg bg-brand-black/70 border border-brand-orange/30 text-brand-orange-sand text-sm hover:bg-brand-orange/20 transition backdrop-blur-sm;
     }
 
     .landing-hero__glow {

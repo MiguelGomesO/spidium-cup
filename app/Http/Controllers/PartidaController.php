@@ -155,6 +155,7 @@ class PartidaController extends Controller
             'eventos.jogador',
             'eventos.assistencia',
             'participacoes',
+            'momentos',
         ]);
 
         $votacao = $this->estatisticasVotacao($partida);

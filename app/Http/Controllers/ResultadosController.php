@@ -25,8 +25,17 @@ class ResultadosController extends Controller
             ->limit(3)
             ->get();
 
+        $todasPartidas = Partida::query()
+            ->with(['timeCasa', 'timeFora', 'campeonato'])
+            ->withCount('momentos')
+            ->finalizadas()
+            ->orderByDesc('id')
+            ->get();
+
         return view('resultados.index', [
             'campeonatos' => $campeonatos,
+            'ultimasPartidas' => $todasPartidas->take(3),
+            'todasPartidas' => $todasPartidas,
             'stats' => [
                 'times' => Time::count(),
                 'partidas' => Partida::count(),
