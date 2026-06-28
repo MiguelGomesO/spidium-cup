@@ -9,12 +9,25 @@ use App\Http\Controllers\ParticipacaoPartidaController;
 use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\ResultadosController;
 use App\Http\Controllers\TimeController;
+use App\Http\Controllers\NotaPublicaPartidaController;
+use App\Http\Controllers\VotoPartidaController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/resultados');
 
 Route::get('/resultados', [ResultadosController::class, 'index'])->name('resultados.index');
 Route::get('/resultados/{campeonato}', [ResultadosController::class, 'show'])->name('resultados.show');
+
+Route::get('/partidas/{partida}', [PartidaController::class, 'show'])
+    ->whereNumber('partida')
+    ->name('partidas.show');
+Route::post('/partidas/{partida}/votos', [VotoPartidaController::class, 'store'])
+    ->whereNumber('partida')
+    ->middleware('throttle:voting')
+    ->name('partidas.votos.store');
+Route::post('/partidas/{partida}/notas', [NotaPublicaPartidaController::class, 'store'])
+    ->whereNumber('partida')
+    ->name('partidas.notas.store');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -26,7 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('campeonatos', CampeonatoController::class)->middleware('auth');
     Route::resource('times', TimeController::class);
-    Route::resource('partidas', PartidaController::class);
+    Route::resource('partidas', PartidaController::class)->except(['show']);
     Route::get('/campeonatos/{id}/classificacao', [CampeonatoController::class, 'classificacao'])->name('campeonatos.classificacao');
     Route::get('/campeonatos/{id}/chave', [CampeonatoController::class, 'chave'])->name('campeonatos.chave');
     Route::get('/times/{time}/escalacao', [TimeController::class, 'escalacao'])->name('times.escalacao');

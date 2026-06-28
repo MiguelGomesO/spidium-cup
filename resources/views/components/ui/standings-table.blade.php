@@ -1,85 +1,154 @@
-@props(['rows' => [], 'mobileCards' => true])
+@props([
+    'rows' => [],
+    'mobileCards' => true,
+    'compact' => false,
+    'qualifiers' => 0,
+    'emptyMessage' => 'Nenhum jogo disputado ainda.',
+])
 
 @php
-    $renderRow = function ($item, $index) {
-        $time = $item['time'];
-        return [
-            'index' => $index,
-            'item' => $item,
-            'time' => $time,
-        ];
+    $positionClass = function (int $index): string {
+        return match ($index) {
+            0 => 'standings-pos--gold',
+            1 => 'standings-pos--silver',
+            2 => 'standings-pos--bronze',
+            default => 'standings-pos--default',
+        };
+    };
+
+    $sgClass = function (int $sg): string {
+        if ($sg > 0) {
+            return 'standings-stat--positive';
+        }
+        if ($sg < 0) {
+            return 'standings-stat--negative';
+        }
+
+        return 'standings-stat--neutral';
     };
 @endphp
 
-{{-- Mobile: cards --}}
-@if ($mobileCards)
-    <div class="md:hidden space-y-2">
-        @foreach ($rows as $index => $item)
-            @php $time = $item['time']; @endphp
-            <div class="standing-card">
-                <span class="standing-card__pos">{{ $index + 1 }}</span>
-                @if ($time->logo ?? null)
-                    <img src="{{ asset('storage/' . $time->logo) }}" class="w-9 h-9 object-contain shrink-0" alt="">
-                @endif
-                <div class="min-w-0 flex-1">
-                    <p class="font-semibold truncate">{{ $time->nome }}</p>
-                    <p class="text-xs text-brand-urban mt-0.5">
-                        {{ $item['jogos'] }}J · {{ $item['vitorias'] }}V · {{ $item['empates'] }}E · {{ $item['derrotas'] }}D
-                    </p>
-                </div>
-                <div class="text-right shrink-0">
-                    <p class="text-lg font-black text-brand-orange-sand">{{ $item['pontos'] }}</p>
-                    <p class="text-[10px] text-brand-urban uppercase">pts</p>
-                </div>
-            </div>
-        @endforeach
+@if (count($rows) === 0)
+    <div class="standings-empty">
+        <div class="standings-empty__icon">📊</div>
+        <p class="standings-empty__text">{{ $emptyMessage }}</p>
+    </div>
+@else
+    @if ($mobileCards)
+        <div class="standings-mobile md:hidden">
+            @foreach ($rows as $index => $item)
+                @php
+                    $time = $item['time'];
+                    $qualified = $qualifiers > 0 && $index < $qualifiers;
+                @endphp
+                <article @class([
+                    'standings-card',
+                    'standings-card--qualified' => $qualified,
+                    'standings-card--podium' => $index < 3,
+                ])>
+                    <span class="standings-pos {{ $positionClass($index) }}">{{ $index + 1 }}</span>
+
+                    @if ($time->logo ?? null)
+                        <img src="{{ asset('storage/' . $time->logo) }}" class="standings-card__logo" alt="">
+                    @else
+                        <div class="standings-card__logo standings-card__logo--placeholder">⚽</div>
+                    @endif
+
+                    <div class="standings-card__body">
+                        <p class="standings-card__team">{{ $time->nome }}</p>
+                        <div class="standings-card__stats">
+                            <span>{{ $item['jogos'] }}J</span>
+                            @if ($compact)
+                                <span class="{{ $sgClass($item['sg']) }}">
+                                    SG {{ $item['sg'] > 0 ? '+' : '' }}{{ $item['sg'] }}
+                                </span>
+                            @else
+                                <span class="standings-stat--win">{{ $item['vitorias'] }}V</span>
+                                <span class="standings-stat--draw">{{ $item['empates'] }}E</span>
+                                <span class="standings-stat--loss">{{ $item['derrotas'] }}D</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="standings-pts">
+                        <span class="standings-pts__value">{{ $item['pontos'] }}</span>
+                        <span class="standings-pts__label">pts</span>
+                    </div>
+                </article>
+            @endforeach
+        </div>
+    @endif
+
+    <div @class(['standings-table-wrap', 'hidden md:block' => $mobileCards])>
+        <div class="standings-table-scroll">
+            <table class="standings-table">
+                <thead>
+                    <tr>
+                        <th class="standings-table__th standings-table__th--pos">#</th>
+                        <th class="standings-table__th standings-table__th--team">Time</th>
+                        <th class="standings-table__th standings-table__th--pts">PTS</th>
+                        <th class="standings-table__th">J</th>
+                        @unless ($compact)
+                            <th class="standings-table__th">V</th>
+                            <th class="standings-table__th">E</th>
+                            <th class="standings-table__th">D</th>
+                            <th class="standings-table__th">GP</th>
+                            <th class="standings-table__th">GC</th>
+                        @endunless
+                        <th class="standings-table__th">SG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($rows as $index => $item)
+                        @php
+                            $time = $item['time'];
+                            $qualified = $qualifiers > 0 && $index < $qualifiers;
+                        @endphp
+                        <tr @class([
+                            'standings-row',
+                            'standings-row--qualified' => $qualified,
+                            'standings-row--podium' => $index < 3,
+                        ])>
+                            <td class="standings-table__td standings-table__td--pos">
+                                <span class="standings-pos {{ $positionClass($index) }}">{{ $index + 1 }}</span>
+                            </td>
+                            <td class="standings-table__td standings-table__td--team">
+                                <div class="standings-team">
+                                    @if ($time->logo ?? null)
+                                        <img src="{{ asset('storage/' . $time->logo) }}" class="standings-team__logo" alt="">
+                                    @else
+                                        <div class="standings-team__logo standings-team__logo--placeholder">⚽</div>
+                                    @endif
+                                    <span class="standings-team__name">{{ $time->nome }}</span>
+                                </div>
+                            </td>
+                            <td class="standings-table__td standings-table__td--pts">
+                                <span class="standings-pts standings-pts--inline">
+                                    <span class="standings-pts__value">{{ $item['pontos'] }}</span>
+                                </span>
+                            </td>
+                            <td class="standings-table__td standings-table__td--stat">{{ $item['jogos'] }}</td>
+                            @unless ($compact)
+                                <td class="standings-table__td standings-table__td--stat standings-stat--win">{{ $item['vitorias'] }}</td>
+                                <td class="standings-table__td standings-table__td--stat standings-stat--draw">{{ $item['empates'] }}</td>
+                                <td class="standings-table__td standings-table__td--stat standings-stat--loss">{{ $item['derrotas'] }}</td>
+                                <td class="standings-table__td standings-table__td--stat">{{ $item['gp'] }}</td>
+                                <td class="standings-table__td standings-table__td--stat">{{ $item['gc'] }}</td>
+                            @endunless
+                            <td class="standings-table__td standings-table__td--stat {{ $sgClass($item['sg']) }}">
+                                {{ $item['sg'] > 0 ? '+' : '' }}{{ $item['sg'] }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        @if ($qualifiers > 0)
+            <p class="standings-legend">
+                <span class="standings-legend__dot"></span>
+                Zona de classificação ({{ $qualifiers }} {{ $qualifiers === 1 ? 'time' : 'times' }})
+            </p>
+        @endif
     </div>
 @endif
-
-{{-- Desktop: tabela --}}
-<div class="{{ $mobileCards ? 'hidden md:block' : '' }} table-wrap">
-    <div class="table-scroll table-scroll--wide">
-        <table>
-            <thead class="bg-brand-ice/5 text-brand-ice/50 text-xs uppercase">
-                <tr>
-                    <th class="text-left p-3 sm:p-4 w-10">#</th>
-                    <th class="text-left p-3 sm:p-4">Time</th>
-                    <th class="p-3 sm:p-4 text-center">PTS</th>
-                    <th class="p-3 sm:p-4 text-center">J</th>
-                    <th class="p-3 sm:p-4 text-center">V</th>
-                    <th class="p-3 sm:p-4 text-center">E</th>
-                    <th class="p-3 sm:p-4 text-center">D</th>
-                    <th class="p-3 sm:p-4 text-center">GP</th>
-                    <th class="p-3 sm:p-4 text-center">GC</th>
-                    <th class="p-3 sm:p-4 text-center">SG</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($rows as $index => $item)
-                    @php $time = $item['time']; @endphp
-                    <tr class="border-t border-brand-ice/5 hover:bg-brand-ice/5">
-                        <td class="p-3 sm:p-4 font-bold text-brand-ice/70">{{ $index + 1 }}</td>
-                        <td class="p-3 sm:p-4">
-                            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-                                @if ($time->logo ?? null)
-                                    <img src="{{ asset('storage/' . $time->logo) }}" class="w-8 h-8 sm:w-10 sm:h-10 object-contain shrink-0" alt="">
-                                @endif
-                                <span class="font-semibold truncate">{{ $time->nome }}</span>
-                            </div>
-                        </td>
-                        <td class="p-3 sm:p-4 text-center font-black text-brand-orange-sand">{{ $item['pontos'] }}</td>
-                        <td class="p-3 sm:p-4 text-center">{{ $item['jogos'] }}</td>
-                        <td class="p-3 sm:p-4 text-center text-brand-blue-light">{{ $item['vitorias'] }}</td>
-                        <td class="p-3 sm:p-4 text-center text-brand-orange-sand">{{ $item['empates'] }}</td>
-                        <td class="p-3 sm:p-4 text-center text-brand-orange">{{ $item['derrotas'] }}</td>
-                        <td class="p-3 sm:p-4 text-center">{{ $item['gp'] }}</td>
-                        <td class="p-3 sm:p-4 text-center">{{ $item['gc'] }}</td>
-                        <td class="p-3 sm:p-4 text-center font-semibold @if($item['sg'] > 0) text-brand-blue-light @elseif($item['sg'] < 0) text-brand-orange-sand @else text-brand-ice/70 @endif">
-                            {{ $item['sg'] > 0 ? '+' : '' }}{{ $item['sg'] }}
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>

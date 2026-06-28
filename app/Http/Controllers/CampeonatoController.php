@@ -17,7 +17,11 @@ class CampeonatoController extends Controller
 
     public function index()
     {
-        $campeonatos = Campeonato::latest()->get();
+        $campeonatos = Campeonato::withCount(['times', 'partidas'])
+            ->withCount(['partidas as partidas_finalizadas_count' => fn ($q) => $q->where('status', Partida::STATUS_FINALIZADA)])
+            ->latest()
+            ->get();
+
         return view('campeonatos.index', compact('campeonatos'));
     }
 

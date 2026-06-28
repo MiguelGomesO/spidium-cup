@@ -4,17 +4,30 @@
 
 @layer base {
     :root {
-        --brand-blue: #031d76;
-        --brand-orange: #ff5a00;
-        --brand-purple: #4e2672;
-        --brand-ice: #d1daff;
-        --brand-black: #060c30;
-        --brand-surface: #0a1548;
-        --brand-blue-light: #a6bfff;
-        --brand-orange-sand: #ffc49a;
-        --brand-lilac: #8d79a6;
-        --brand-urban: #5a6780;
-        --brand-asphalt: #1e3b3d;
+        /* Primárias */
+        --brand-blue: #031D76;
+        --brand-orange: #FF5A00;
+        --brand-purple: #4E2672;
+        --brand-ice: #D1DAFF;
+        --brand-black: #060C30;
+        /* Superfície */
+        --brand-surface: #0A1548;
+        /* Complementares */
+        --brand-blue-light: #A6BFFF;
+        --brand-orange-sand: #FFC49A;
+        --brand-lilac: #8D79A6;
+        --brand-urban: #5A6780;
+        --brand-asphalt: #1E3B3D;
+        /* RGB — para rgba() em gradientes */
+        --brand-blue-rgb: 3, 29, 118;
+        --brand-orange-rgb: 255, 90, 0;
+        --brand-purple-rgb: 78, 38, 114;
+        --brand-black-rgb: 6, 12, 48;
+        --brand-ice-rgb: 209, 218, 255;
+        --brand-orange-sand-rgb: 255, 196, 154;
+        --brand-asphalt-rgb: 30, 59, 61;
+        --brand-lilac-rgb: 141, 121, 166;
+        --brand-blue-light-rgb: 166, 191, 255;
         --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
@@ -51,11 +64,19 @@
     }
 
     .btn-brand {
-        @apply inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 bg-brand-gradient text-white font-semibold rounded-xl hover:opacity-90 active:scale-[0.98] transition;
+        @apply inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 bg-brand-gradient text-brand-ice font-semibold rounded-xl hover:opacity-90 active:scale-[0.98] transition;
     }
 
     .btn-ghost {
         @apply inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-xl bg-brand-ice/10 border border-brand-ice/10 font-medium hover:bg-brand-ice/15 active:scale-[0.98] transition;
+    }
+
+    .btn-asphalt {
+        @apply inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 bg-brand-asphalt text-brand-ice font-semibold rounded-xl hover:bg-brand-asphalt/90 active:scale-[0.98] transition border border-brand-blue-light/20;
+    }
+
+    .text-success {
+        @apply text-brand-blue-light;
     }
 
     .ring-brand {
@@ -97,7 +118,7 @@
         @apply overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: thin;
-        scrollbar-color: rgba(209, 218, 255, 0.25) transparent;
+        scrollbar-color: rgba(var(--brand-ice-rgb), 0.25) transparent;
     }
 
     .table-scroll table {
@@ -210,13 +231,409 @@
         @apply fixed z-[200] pointer-events-none left-4 right-4 bottom-[calc(1rem+var(--safe-bottom))] sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-sm;
     }
 
-    /* Standings card (mobile) */
+    /* Standings card (mobile) — legado */
     .standing-card {
         @apply flex items-center gap-3 p-4 rounded-2xl bg-brand-ice/5 border border-brand-ice/5;
     }
 
     .standing-card__pos {
         @apply w-8 h-8 shrink-0 rounded-lg bg-brand-black/50 flex items-center justify-center text-sm font-bold text-brand-ice/70;
+    }
+
+    /* Classificação — visual renovado */
+    .standings-empty {
+        @apply flex flex-col items-center justify-center py-12 px-6 text-center;
+    }
+
+    .standings-empty__icon {
+        @apply text-4xl mb-3 opacity-60;
+    }
+
+    .standings-empty__text {
+        @apply text-sm text-brand-ice/50;
+    }
+
+    .standings-mobile {
+        @apply space-y-2.5 p-4 sm:p-5;
+    }
+
+    .standings-card {
+        @apply relative flex items-center gap-3 p-3.5 rounded-2xl border border-brand-ice/10 bg-brand-black/30 transition hover:border-brand-ice/20;
+    }
+
+    .standings-card--qualified {
+        @apply border-l-[3px] border-l-brand-blue-light/80;
+    }
+
+    .standings-card--podium {
+        background: linear-gradient(135deg, rgba(var(--brand-purple-rgb), 0.12) 0%, rgba(var(--brand-blue-rgb), 0.35) 100%);
+    }
+
+    .standings-card__logo {
+        @apply w-10 h-10 object-contain shrink-0;
+    }
+
+    .standings-card__logo--placeholder {
+        @apply flex items-center justify-center rounded-xl bg-brand-ice/5 text-lg;
+    }
+
+    .standings-card__body {
+        @apply min-w-0 flex-1;
+    }
+
+    .standings-card__team {
+        @apply font-semibold text-sm truncate;
+    }
+
+    .standings-card__stats {
+        @apply flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-[11px] text-brand-ice/50;
+    }
+
+    .standings-pos {
+        @apply w-8 h-8 shrink-0 rounded-xl flex items-center justify-center text-xs font-black tabular-nums;
+    }
+
+    .standings-pos--gold {
+        @apply bg-brand-orange-sand/20 text-brand-orange-sand border border-brand-orange-sand/30;
+    }
+
+    .standings-pos--silver {
+        @apply bg-brand-ice/10 text-brand-ice/80 border border-brand-ice/20;
+    }
+
+    .standings-pos--bronze {
+        @apply bg-brand-purple/25 text-brand-lilac border border-brand-purple/30;
+    }
+
+    .standings-pos--default {
+        @apply bg-brand-black/50 text-brand-ice/60 border border-brand-ice/10;
+    }
+
+    .standings-pts {
+        @apply shrink-0 text-center min-w-[3rem];
+    }
+
+    .standings-pts__value {
+        @apply block text-xl font-black tabular-nums text-brand-orange-sand leading-none;
+    }
+
+    .standings-pts__label {
+        @apply block text-[9px] uppercase tracking-wider text-brand-ice/40 mt-0.5;
+    }
+
+    .standings-pts--inline .standings-pts__value {
+        @apply inline-flex items-center justify-center min-w-[2.5rem] px-2.5 py-1 rounded-xl text-base font-black;
+        background: linear-gradient(135deg, rgba(var(--brand-orange-rgb), 0.18) 0%, rgba(var(--brand-purple-rgb), 0.22) 100%);
+        border: 1px solid rgba(var(--brand-orange-sand-rgb), 0.25);
+    }
+
+    .standings-table-wrap {
+        @apply relative;
+    }
+
+    .standings-table-scroll {
+        @apply overflow-x-auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(var(--brand-ice-rgb), 0.25) transparent;
+    }
+
+    .standings-table {
+        @apply w-full min-w-[640px] text-sm;
+    }
+
+    .standings-table thead tr {
+        background: linear-gradient(180deg, rgba(var(--brand-purple-rgb), 0.35) 0%, rgba(var(--brand-blue-rgb), 0.6) 100%);
+    }
+
+    .standings-table__th {
+        @apply px-3 py-3.5 text-[10px] font-bold uppercase tracking-wider text-brand-ice/50 text-center whitespace-nowrap;
+    }
+
+    .standings-table__th--pos {
+        @apply text-left w-14 pl-5;
+    }
+
+    .standings-table__th--team {
+        @apply text-left;
+    }
+
+    .standings-table__th--pts {
+        @apply text-center text-brand-orange-sand/80;
+    }
+
+    .standings-row {
+        @apply border-t border-brand-ice/5 transition-colors;
+    }
+
+    .standings-row:hover {
+        @apply bg-brand-ice/[0.04];
+    }
+
+    .standings-row--qualified {
+        @apply border-l-[3px] border-l-brand-blue-light/70;
+        background: linear-gradient(90deg, rgba(var(--brand-asphalt-rgb), 0.25) 0%, transparent 55%);
+    }
+
+    .standings-row--podium .standings-table__td--team {
+        @apply font-semibold;
+    }
+
+    .standings-table__td {
+        @apply px-3 py-3.5 text-center tabular-nums text-brand-ice/80;
+    }
+
+    .standings-table__td--pos {
+        @apply pl-5 text-left;
+    }
+
+    .standings-table__td--team {
+        @apply text-left;
+    }
+
+    .standings-table__td--pts {
+        @apply bg-brand-orange/[0.04];
+    }
+
+    .standings-table__td--stat {
+        @apply text-brand-ice/70;
+    }
+
+    .standings-team {
+        @apply flex items-center gap-3 min-w-0;
+    }
+
+    .standings-team__logo {
+        @apply w-9 h-9 object-contain shrink-0;
+    }
+
+    .standings-team__logo--placeholder {
+        @apply flex items-center justify-center rounded-lg bg-brand-ice/5 text-sm;
+    }
+
+    .standings-team__name {
+        @apply font-semibold truncate;
+    }
+
+    .standings-stat--win {
+        @apply text-brand-blue-light font-semibold;
+    }
+
+    .standings-stat--draw {
+        @apply text-brand-orange-sand;
+    }
+
+    .standings-stat--loss {
+        @apply text-brand-orange;
+    }
+
+    .standings-stat--positive {
+        @apply text-brand-blue-light font-bold;
+    }
+
+    .standings-stat--negative {
+        @apply text-brand-orange-sand font-bold;
+    }
+
+    .standings-stat--neutral {
+        @apply text-brand-ice/60;
+    }
+
+    .standings-legend {
+        @apply flex items-center gap-2 px-5 py-3 text-xs text-brand-ice/45 border-t border-brand-ice/10;
+    }
+
+    .standings-legend__dot {
+        @apply w-2 h-2 rounded-full bg-brand-blue-light shrink-0;
+    }
+
+    /* Admin — listagem de campeonatos */
+    .admin-champ-table-wrap {
+        @apply overflow-hidden rounded-3xl border border-brand-ice/10 bg-brand-surface;
+    }
+
+    .admin-champ-table-scroll {
+        @apply overflow-x-auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-champ-table {
+        @apply w-full min-w-[880px] text-sm;
+    }
+
+    .admin-champ-table thead tr {
+        background: linear-gradient(180deg, rgba(var(--brand-purple-rgb), 0.35) 0%, rgba(var(--brand-blue-rgb), 0.65) 100%);
+    }
+
+    .admin-champ-table__th {
+        @apply px-5 py-4 text-[10px] font-bold uppercase tracking-wider text-brand-ice/50 text-left whitespace-nowrap;
+    }
+
+    .admin-champ-table__th--actions {
+        @apply text-center;
+    }
+
+    .admin-champ-row {
+        @apply border-t border-brand-ice/5 transition-colors;
+    }
+
+    .admin-champ-row:hover {
+        @apply bg-brand-ice/[0.04];
+    }
+
+    .admin-champ-table__td {
+        @apply px-5 py-4 align-middle;
+    }
+
+    .admin-champ-table__td--stat {
+        @apply tabular-nums text-center;
+    }
+
+    .admin-champ-table__td--date {
+        @apply text-brand-ice/50 text-sm whitespace-nowrap;
+    }
+
+    .admin-champ-table__td--actions {
+        @apply text-center;
+    }
+
+    .admin-champ-name {
+        @apply flex items-center gap-3 min-w-0;
+    }
+
+    .admin-champ-name__icon {
+        @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 text-lg shadow-lg;
+    }
+
+    .admin-champ-name__icon--0 {
+        background: linear-gradient(135deg, rgba(var(--brand-orange-rgb), 0.85) 0%, rgba(var(--brand-orange-sand-rgb), 0.55) 100%);
+    }
+
+    .admin-champ-name__icon--1 {
+        background: linear-gradient(135deg, rgba(var(--brand-purple-rgb), 0.9) 0%, rgba(var(--brand-lilac-rgb), 0.55) 100%);
+    }
+
+    .admin-champ-name__icon--2 {
+        background: linear-gradient(135deg, rgba(var(--brand-blue-rgb), 0.9) 0%, rgba(var(--brand-blue-light-rgb), 0.55) 100%);
+    }
+
+    .admin-champ-name__title {
+        @apply font-bold truncate;
+    }
+
+    .admin-champ-name__progress {
+        @apply mt-2 h-1 w-full max-w-[12rem] rounded-full bg-brand-black/50 overflow-hidden;
+    }
+
+    .admin-champ-name__progress-bar {
+        @apply h-full rounded-full;
+        background: linear-gradient(90deg, rgba(var(--brand-orange-rgb), 0.85) 0%, rgba(var(--brand-purple-rgb), 0.85) 100%);
+    }
+
+    .admin-champ-badge {
+        @apply inline-flex px-2.5 py-1 rounded-full text-[11px] font-semibold border whitespace-nowrap;
+    }
+
+    .admin-champ-badge--liga {
+        @apply bg-brand-blue/20 text-brand-blue-light border-brand-blue/30;
+    }
+
+    .admin-champ-badge--grupos {
+        @apply bg-brand-purple/20 text-brand-lilac border-brand-purple/30;
+    }
+
+    .admin-champ-badge--mata {
+        @apply bg-brand-orange/20 text-brand-orange-sand border-brand-orange/30;
+    }
+
+    .admin-champ-status {
+        @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border whitespace-nowrap;
+    }
+
+    .admin-champ-status::before {
+        content: '';
+        @apply w-1.5 h-1.5 rounded-full shrink-0;
+    }
+
+    .admin-champ-status--idle {
+        @apply bg-brand-ice/5 text-brand-ice/50 border-brand-ice/10;
+    }
+
+    .admin-champ-status--idle::before {
+        @apply bg-brand-ice/40;
+    }
+
+    .admin-champ-status--live {
+        @apply bg-brand-blue/15 text-brand-blue-light border-brand-blue/25;
+    }
+
+    .admin-champ-status--live::before {
+        @apply bg-brand-blue-light animate-pulse;
+    }
+
+    .admin-champ-status--done {
+        @apply bg-brand-asphalt/20 text-brand-blue-light border-brand-asphalt/40;
+    }
+
+    .admin-champ-status--done::before {
+        @apply bg-brand-blue-light;
+    }
+
+    .admin-champ-actions {
+        @apply inline-flex items-center justify-center gap-2;
+    }
+
+    .admin-champ-btn-delete {
+        @apply min-h-[40px] min-w-[40px] rounded-xl bg-brand-orange/10 border border-brand-orange/20 text-brand-orange-sand text-sm font-medium hover:bg-brand-orange/20 transition;
+    }
+
+    .admin-champ-card {
+        @apply rounded-3xl border border-brand-ice/10 bg-brand-surface p-5;
+    }
+
+    .admin-champ-card__header {
+        @apply flex items-start gap-3 mb-4;
+    }
+
+    .admin-champ-card__icon {
+        @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 text-xl;
+    }
+
+    .admin-champ-card__icon--0 {
+        background: linear-gradient(135deg, rgba(var(--brand-orange-rgb), 0.85) 0%, rgba(var(--brand-orange-sand-rgb), 0.55) 100%);
+    }
+
+    .admin-champ-card__icon--1 {
+        background: linear-gradient(135deg, rgba(var(--brand-purple-rgb), 0.9) 0%, rgba(var(--brand-lilac-rgb), 0.55) 100%);
+    }
+
+    .admin-champ-card__icon--2 {
+        background: linear-gradient(135deg, rgba(var(--brand-blue-rgb), 0.9) 0%, rgba(var(--brand-blue-light-rgb), 0.55) 100%);
+    }
+
+    .admin-champ-card__stats {
+        @apply grid grid-cols-3 gap-3 text-center mb-4;
+    }
+
+    .admin-champ-card__stat-value {
+        @apply text-xl font-black tabular-nums;
+    }
+
+    .admin-champ-card__stat-label {
+        @apply text-[10px] uppercase tracking-wide text-brand-ice/45 mt-0.5;
+    }
+
+    .admin-champ-card__progress {
+        @apply h-1.5 rounded-full bg-brand-black/50 overflow-hidden;
+    }
+
+    .admin-champ-card__progress-bar {
+        @apply h-full rounded-full;
+        background: linear-gradient(90deg, rgba(var(--brand-orange-rgb), 0.85) 0%, rgba(var(--brand-purple-rgb), 0.85) 100%);
+    }
+
+    .admin-champ-card__actions {
+        @apply flex items-center gap-2 mt-4;
     }
 
     .grid-cards {
@@ -238,13 +655,115 @@
     .stat-box__label {
         @apply text-[10px] sm:text-xs text-brand-urban uppercase tracking-wide truncate;
     }
+
+    /* Landing — resultados públicos */
+    .landing-hero {
+        @apply relative overflow-hidden rounded-2xl sm:rounded-3xl border border-brand-ice/10 p-5 sm:p-6 lg:p-8;
+        background: linear-gradient(
+            115deg,
+            rgba(var(--brand-purple-rgb), 0.4) 0%,
+            rgba(var(--brand-blue-rgb), 0.92) 38%,
+            var(--brand-surface) 62%,
+            var(--brand-black) 100%
+        );
+    }
+
+    .landing-hero__ambient {
+        @apply pointer-events-none absolute rounded-full blur-3xl;
+    }
+
+    .landing-hero__ambient--purple {
+        @apply -left-10 top-1/3 h-48 w-48 -translate-y-1/2 sm:h-64 sm:w-64;
+        background: radial-gradient(circle, rgba(var(--brand-purple-rgb), 0.5) 0%, transparent 70%);
+    }
+
+    .landing-hero__ambient--orange {
+        @apply -left-4 bottom-2 h-40 w-40 sm:h-52 sm:w-52;
+        background: radial-gradient(circle, rgba(var(--brand-orange-rgb), 0.28) 0%, transparent 70%);
+    }
+
+    .landing-hero__ambient--spot {
+        @apply left-[18%] top-1/2 h-28 w-48 -translate-y-1/2 opacity-50;
+        background: radial-gradient(ellipse, rgba(var(--brand-orange-sand-rgb), 0.18) 0%, transparent 65%);
+    }
+
+    .landing-hero__inner {
+        @apply relative z-10 grid items-center gap-4 sm:gap-5 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-1 xl:gap-2;
+    }
+
+    .landing-hero__visual {
+        @apply relative order-2 lg:order-1 flex justify-center lg:justify-end;
+    }
+
+    .landing-hero__visual::after {
+        content: '';
+        @apply pointer-events-none absolute inset-y-6 right-0 w-8 z-20 hidden lg:block;
+        background: linear-gradient(to right, transparent, rgba(var(--brand-blue-rgb), 0.75));
+    }
+
+    .landing-hero__image {
+        @apply relative z-10 h-auto max-h-[min(52vh,22rem)] w-auto object-contain object-center lg:object-right;
+        max-width: min(85vw, 16rem);
+        filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.4));
+    }
+
+    @media (min-width: 640px) {
+        .landing-hero__image {
+            max-width: min(70vw, 18rem);
+            max-height: min(48vh, 24rem);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .landing-hero__image {
+            max-width: 18rem;
+            max-height: 26rem;
+            margin-right: -0.25rem;
+        }
+    }
+
+    .landing-hero__content {
+        @apply order-1 lg:order-2 lg:pl-1 xl:pl-2;
+    }
+
+    .landing-hero__glow {
+        @apply pointer-events-none absolute rounded-full blur-3xl;
+    }
+
+    .landing-step {
+        @apply relative overflow-hidden rounded-2xl border border-brand-ice/10 bg-brand-surface/80 p-5 sm:p-6 text-center transition hover:border-brand-lilac/30 hover:-translate-y-0.5;
+    }
+
+    .landing-step__icon {
+        @apply mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-black/40 border border-brand-ice/10;
+    }
+
+    .championship-card {
+        @apply relative flex flex-col overflow-hidden rounded-2xl border border-brand-ice/10 bg-brand-surface p-5 sm:p-6 transition hover:border-brand-lilac/30 hover:-translate-y-1;
+    }
+
+    .championship-card__shield {
+        @apply flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 shadow-lg;
+    }
+
+    .platform-stat {
+        @apply flex flex-col items-center text-center gap-2 sm:gap-3;
+    }
+
+    .platform-stat__icon {
+        @apply flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-brand-black/40 border border-brand-ice/10;
+    }
+
+    .platform-stat__value {
+        @apply text-2xl sm:text-3xl font-black tabular-nums text-brand-ice;
+    }
 }
 
 .linha-horizontal {
     position: absolute;
     height: 2px;
-    background: linear-gradient(to right, #4e2672, #ff5a00);
-    box-shadow: 0 0 8px rgba(255, 90, 0, 0.45);
+    background: linear-gradient(to right, var(--brand-purple), var(--brand-orange));
+    box-shadow: 0 0 8px rgba(var(--brand-orange-rgb), 0.45);
     border-radius: 2px;
     animation: pulseline 2s infinite alternate;
 }
@@ -252,8 +771,8 @@
 .linha-vertical {
     position: absolute;
     height: 2px;
-    background: linear-gradient(to bottom, #4e2672, #ff5a00);
-    box-shadow: 0 0 25px rgba(78, 38, 114, 0.55);
+    background: linear-gradient(to bottom, var(--brand-purple), var(--brand-orange));
+    box-shadow: 0 0 25px rgba(var(--brand-purple-rgb), 0.55);
     border-radius: 2px;
     transform: translateY(0);
     z-index: 0;
@@ -269,12 +788,12 @@
 }
 
 .card-glow {
-    box-shadow: 0 0 15px rgba(78, 38, 114, 0.45);
+    box-shadow: 0 0 15px rgba(var(--brand-purple-rgb), 0.45);
 }
 
 .card-hover:hover {
     transform: scale(1.02);
-    box-shadow: 0 0 25px rgba(255, 90, 0, 0.35);
+    box-shadow: 0 0 25px rgba(var(--brand-orange-rgb), 0.35);
 }
 
 @media (min-width: 768px) {

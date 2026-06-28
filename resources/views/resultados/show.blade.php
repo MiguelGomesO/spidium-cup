@@ -118,12 +118,12 @@
 
         @if ($campeonato->formato === 'liga')
             <div x-show="tab === 'classificacao'" x-transition>
-                <div class="section-card p-0 sm:p-0 overflow-hidden">
-                    <div class="p-4 sm:p-6 border-b border-brand-ice/10">
+                <div class="section-card p-0 overflow-hidden">
+                    <div class="p-4 sm:p-6 border-b border-brand-ice/10 bg-gradient-to-r from-brand-purple/10 to-transparent">
                         <h2 class="text-lg sm:text-2xl font-bold">Classificação</h2>
-                        <p class="text-sm text-brand-ice/50 mt-1">Tabela do campeonato</p>
+                        <p class="text-sm text-brand-ice/50 mt-1">Tabela oficial do campeonato</p>
                     </div>
-                    <x-ui.standings-table :rows="$classificacao ?? []" />
+                    <x-ui.standings-table :rows="$classificacao ?? []" :qualifiers="4" />
                 </div>
             </div>
         @endif
@@ -132,55 +132,35 @@
             <div x-show="tab === 'classificacao'" x-transition>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     @foreach ($campeonato->grupos as $grupo)
+                        @php $rowsGrupo = data_get($classificacao, $grupo->id, []); @endphp
                         <div class="bg-brand-surface border border-brand-ice/10 rounded-3xl overflow-hidden">
-                            <div class="p-6 border-b border-brand-ice/10">
+                            <div class="p-5 sm:p-6 border-b border-brand-ice/10 bg-gradient-to-r from-brand-purple/10 to-transparent">
                                 <h2 class="text-xl font-bold">{{ $grupo->nome }}</h2>
                                 <p class="text-sm text-brand-ice/50">{{ $grupo->times->count() }} times</p>
                             </div>
 
-                            <div class="table-scroll md:!mx-0 md:!px-0">
-                                <table class="w-full min-w-[480px]">
-                                    <thead class="bg-brand-ice/5 text-brand-ice/50 text-xs uppercase">
-                                        <tr>
-                                            <th class="text-left p-4">#</th>
-                                            <th class="text-left p-4">Time</th>
-                                            <th class="p-4 text-center">PTS</th>
-                                            <th class="p-4 text-center">J</th>
-                                            <th class="p-4 text-center">SG</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse (data_get($classificacao, $grupo->id, []) as $index => $item)
-                                            <tr class="border-t border-brand-ice/5">
-                                                <td class="p-4 font-bold">{{ (int) $index + 1 }}</td>
-                                                <td class="p-4">
-                                                    <div class="flex items-center gap-3">
-                                                        <img src="{{ asset('storage/' . $item['time']->logo) }}" class="w-8 h-8 object-contain" alt="">
-                                                        <span class="font-semibold">{{ $item['time']->nome }}</span>
-                                                    </div>
-                                                </td>
-                                                <td class="p-4 text-center font-black text-brand-orange-sand">{{ $item['pontos'] }}</td>
-                                                <td class="p-4 text-center">{{ $item['jogos'] }}</td>
-                                                <td class="p-4 text-center @if($item['sg'] > 0) text-brand-blue-light @elseif($item['sg'] < 0) text-brand-orange-sand @endif">
-                                                    {{ $item['sg'] > 0 ? '+' : '' }}{{ $item['sg'] }}
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            @foreach ($grupo->times as $time)
-                                                <tr class="border-t border-brand-ice/5">
-                                                    <td class="p-4 text-brand-ice/50">—</td>
-                                                    <td class="p-4" colspan="4">
-                                                        <div class="flex items-center gap-3">
-                                                            <img src="{{ asset('storage/' . $time->logo) }}" class="w-8 h-8 object-contain" alt="">
-                                                            <span>{{ $time->nome }}</span>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
+                            @if (empty($rowsGrupo) && $grupo->times->isNotEmpty())
+                                <div class="standings-mobile p-4 sm:p-5 space-y-2">
+                                    @foreach ($grupo->times as $time)
+                                        <div class="standings-card opacity-70">
+                                            @if ($time->logo)
+                                                <img src="{{ asset('storage/' . $time->logo) }}" class="standings-card__logo" alt="">
+                                            @endif
+                                            <div class="standings-card__body">
+                                                <p class="standings-card__team">{{ $time->nome }}</p>
+                                                <p class="text-[11px] text-brand-ice/40 mt-1">Aguardando jogos</p>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <x-ui.standings-table
+                                    :rows="$rowsGrupo"
+                                    compact
+                                    :qualifiers="2"
+                                    empty-message="Nenhum jogo neste grupo ainda."
+                                />
+                            @endif
                         </div>
                     @endforeach
                 </div>
