@@ -1,5 +1,6 @@
 @php
     $storageKey = 'spidium_mvp_voto_' . $partida->id;
+    $consentKey = 'spidium_voto_ip_consent_v1';
 @endphp
 
 <div
@@ -7,6 +8,10 @@
     x-data="{
         partidaId: {{ $partida->id }},
         storageKey: @js($storageKey),
+        consentKey: @js($consentKey),
+        consentAceito: localStorage.getItem(@js($consentKey)) === '1',
+        modalConsentimento: false,
+        votoPendente: null,
         jaVotou: @js($votacaoIpJaVotou) || localStorage.getItem(@js($storageKey)) !== null,
         jogadorVotadoId: localStorage.getItem(@js($storageKey)),
         votando: false,
@@ -21,6 +26,14 @@
         csrf: @js(csrf_token()),
 
         async init() {
+            if (this.consentAceito) {
+                await this.carregarFingerprint();
+            }
+        },
+
+        async carregarFingerprint() {
+            if (this.fingerprintPronto) return;
+
             if (typeof window.getVisitorId !== 'function') {
                 this.erro = 'Não foi possível identificar este dispositivo. Recarregue a página.';
                 return;
@@ -39,8 +52,44 @@
             return item ? item.total : 0;
         },
 
+        solicitarVoto(jogadorId) {
+            if (this.jaVotou || this.votando) return;
+
+            if (! this.consentAceito) {
+                this.votoPendente = jogadorId;
+                this.modalConsentimento = true;
+                return;
+            }
+
+            this.votar(jogadorId);
+        },
+
+        recusarConsentimento() {
+            this.modalConsentimento = false;
+            this.votoPendente = null;
+        },
+
+        async aceitarConsentimento() {
+            localStorage.setItem(this.consentKey, '1');
+            this.consentAceito = true;
+            this.modalConsentimento = false;
+
+            await this.carregarFingerprint();
+
+            if (this.votoPendente !== null) {
+                const jogadorId = this.votoPendente;
+                this.votoPendente = null;
+                await this.votar(jogadorId);
+            }
+        },
+
         async votar(jogadorId) {
-            if (this.jaVotou || this.votando || ! this.fingerprintPronto || ! this.visitorId) return;
+            if (this.jaVotou || this.votando || ! this.consentAceito) return;
+
+            if (! this.fingerprintPronto || ! this.visitorId) {
+                await this.carregarFingerprint();
+                if (! this.fingerprintPronto || ! this.visitorId) return;
+            }
 
             this.votando = true;
             this.erro = '';
@@ -102,6 +151,7 @@
         },
     }"
     x-init="init()"
+    @keydown.escape.window="modalConsentimento && recusarConsentimento()"
 >
     <div class="absolute inset-0 bg-gradient-to-br from-brand-purple/15 via-transparent to-brand-orange/10 pointer-events-none"></div>
 
@@ -114,6 +164,7 @@
                 <h2 class="text-lg sm:text-xl font-bold">MVP da partida</h2>
                 <p class="text-sm text-brand-ice/50 mt-1 max-w-xl">
                     Escolha o melhor jogador da partida. Cada visitante pode votar uma vez por dispositivo.
+                    <span class="block mt-1 text-brand-urban/90">Na primeira votação, pediremos seu consentimento para registrar o endereço IP.</span>
                 </p>
             </div>
             <div class="stat-box shrink-0 text-center sm:text-right min-w-[120px]">
@@ -180,8 +231,8 @@
                                 <li>
                                     <button
                                         type="button"
-                                        @click="votar({{ $jogador->id }})"
-                                        :disabled="jaVotou || votando || !fingerprintPronto"
+                                        @click="solicitarVoto({{ $jogador->id }})"
+                                        :disabled="jaVotou || votando || (consentAceito && !fingerprintPronto)"
                                         :class="jaVotou
                                             ? 'opacity-60 cursor-not-allowed border-brand-ice/10 bg-brand-ice/5'
                                             : 'hover:border-brand-orange/40 hover:bg-brand-orange/10 border-brand-ice/10 active:scale-[0.99]'"
@@ -210,4 +261,76 @@
             @endforeach
         </div>
     </div>
+
+    {{-- Modal: consentimento IP (primeira votação) --}}
+    <template x-teleport="body">
+        <div
+            x-show="modalConsentimento"
+            x-cloak
+            class="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="voto-consent-title"
+        >
+            <div
+                @click="recusarConsentimento()"
+                class="absolute inset-0 bg-brand-black/80 backdrop-blur-md"
+                x-show="modalConsentimento"
+                x-transition.opacity
+            ></div>
+
+            <div
+                class="relative w-full sm:max-w-md bg-brand-surface border border-brand-ice/10 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden"
+                x-show="modalConsentimento"
+                x-transition
+                @click.stop
+            >
+                <div class="p-6 sm:p-8">
+                    <div class="w-12 h-12 rounded-2xl bg-brand-orange/15 border border-brand-orange/25 flex items-center justify-center text-2xl mb-4">
+                        🔒
+                    </div>
+
+                    <h3 id="voto-consent-title" class="text-xl font-bold text-brand-ice mb-2">
+                        Antes de votar
+                    </h3>
+
+                    <p class="text-sm text-brand-ice/60 leading-relaxed mb-4">
+                        Para garantir <strong class="text-brand-ice/80 font-semibold">um voto por pessoa</strong>, o Spidium Cup registra:
+                    </p>
+
+                    <ul class="text-sm text-brand-ice/60 space-y-2 mb-6 pl-1">
+                        <li class="flex gap-2">
+                            <span class="text-brand-orange-sand shrink-0">•</span>
+                            <span>Um <strong class="text-brand-ice/80 font-medium">identificador do seu dispositivo</strong> (fingerprint anônimo)</span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-brand-orange-sand shrink-0">•</span>
+                            <span>Um <strong class="text-brand-ice/80 font-medium">hash do seu endereço IP</strong> — não armazenamos o IP em texto puro</span>
+                        </li>
+                    </ul>
+
+                    <p class="text-xs text-brand-urban leading-relaxed mb-6">
+                        Esses dados servem apenas para evitar votos duplicados nesta votação de MVP. Ao aceitar, você concorda com esse uso. Você precisa aceitar para registrar seu voto.
+                    </p>
+
+                    <div class="flex flex-col-reverse sm:flex-row gap-3">
+                        <button
+                            type="button"
+                            @click="recusarConsentimento()"
+                            class="btn-ghost flex-1 text-sm"
+                        >
+                            Agora não
+                        </button>
+                        <button
+                            type="button"
+                            @click="aceitarConsentimento()"
+                            class="btn-brand flex-1 text-sm"
+                        >
+                            Aceito e quero votar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
 </div>

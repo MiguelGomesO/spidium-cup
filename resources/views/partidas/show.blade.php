@@ -4,7 +4,8 @@
 
 @section('content')
 
-<div class="max-w-4xl mx-auto mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+<div class="partida-show">
+<div class="partida-show__inner mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
     @auth
         <a href="{{ route('partidas.index') }}" class="inline-flex items-center min-h-[44px] text-sm text-brand-ice/60 hover:text-brand-ice transition">← Partidas</a>
         <a href="{{ route('partidas.edit', $partida) }}" class="btn-ghost text-sm w-full sm:w-auto text-center">
@@ -16,13 +17,14 @@
 </div>
 
 @if (session('success'))
-    <div class="max-w-4xl mx-auto mb-4 bg-brand-asphalt/50 border border-brand-blue-light/25 text-brand-blue-light text-sm rounded-2xl px-5 py-4">
+    <div class="partida-show__inner mb-4 bg-brand-asphalt/50 border border-brand-blue-light/25 text-brand-blue-light text-sm rounded-2xl px-5 py-4">
         {{ session('success') }}
     </div>
 @endif
 
-<div class="p-6 max-w-4xl mx-auto"
+<div class="partida-show__inner p-6"
     x-data="{
+        tab: @js(request('tab', 'sumula')),
         openGol: false,
         openFinalizar: false,
         time: 'casa',
@@ -144,6 +146,27 @@
 
     </div>
 
+    <div class="tabs-scroll mb-6" role="tablist">
+        <button
+            type="button"
+            @click="tab = 'sumula'"
+            :class="tab === 'sumula' ? 'tab-pill tab-pill--active' : 'tab-pill tab-pill--idle'"
+        >
+            Súmula
+        </button>
+        <button
+            type="button"
+            @click="tab = 'momentos'"
+            :class="tab === 'momentos' ? 'tab-pill tab-pill--active' : 'tab-pill tab-pill--idle'"
+        >
+            Melhores momentos
+            @if ($partida->momentos->isNotEmpty())
+                <span class="ml-1 opacity-80">({{ $partida->momentos->count() }})</span>
+            @endif
+        </button>
+    </div>
+
+    <div x-show="tab === 'sumula'" x-transition>
     <div class="relative rounded-2xl p-6 overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-br from-brand-orange/10 via-transparent to-brand-orange-sand/10"></div>
 
@@ -216,6 +239,11 @@
                 </div>
             </template>
         </div>
+    </div>
+    </div>
+
+    <div x-show="tab === 'momentos'" x-transition x-cloak>
+        @include('partidas.partials.melhores-momentos')
     </div>
 
     @if ($partida->isFinalizada())
@@ -392,6 +420,7 @@
         </div>
     </template>
     @endauth
+</div>
 </div>
 
 @endsection

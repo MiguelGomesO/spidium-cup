@@ -114,6 +114,11 @@ class Partida extends Model
         return $this->hasMany(NotaPublicaPartida::class);
     }
 
+    public function momentos()
+    {
+        return $this->hasMany(MelhorMomentoPartida::class)->orderBy('ordem')->orderBy('id');
+    }
+
     public function campeonato()
     {
         return $this->belongsTo(Campeonato::class);

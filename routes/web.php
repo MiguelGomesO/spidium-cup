@@ -10,7 +10,7 @@ use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\ResultadosController;
 use App\Http\Controllers\TimeController;
 use App\Http\Controllers\NotaPublicaPartidaController;
-use App\Http\Controllers\VotoPartidaController;
+use App\Http\Controllers\MelhorMomentoPartidaController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/resultados');
@@ -62,6 +62,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/partidas/{partida}/finalizar', [PartidaController::class, 'finalizar'])->name('partidas.finalizar');
     Route::patch('/partidas/{partida}/status', [PartidaController::class, 'atualizarStatus'])->name('partidas.status');
     Route::post('/partidas/{partida}/participacoes', [ParticipacaoPartidaController::class, 'sync'])->name('partidas.participacoes.sync');
+    Route::post('/partidas/{partida}/momentos', [MelhorMomentoPartidaController::class, 'store'])->name('partidas.momentos.store');
+    Route::delete('/partidas/{partida}/momentos/{momento}', [MelhorMomentoPartidaController::class, 'destroy'])->name('partidas.momentos.destroy');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 

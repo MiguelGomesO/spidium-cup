@@ -5,39 +5,171 @@
 @section('content')
     {{-- Hero --}}
     <section class="landing-hero mb-8 sm:mb-10 lg:mb-12">
+        <div class="landing-hero__grid" aria-hidden="true"></div>
         <div class="landing-hero__ambient landing-hero__ambient--purple" aria-hidden="true"></div>
         <div class="landing-hero__ambient landing-hero__ambient--orange" aria-hidden="true"></div>
-        <div class="landing-hero__ambient landing-hero__ambient--spot" aria-hidden="true"></div>
 
         <div class="landing-hero__inner">
-            <div class="landing-hero__visual">
-                <img
-                    src="{{ asset('images/throphy.png') }}"
-                    alt="Troféu Spidium Cup"
-                    class="landing-hero__image"
-                    width="736"
-                    height="1312"
-                >
+            <div class="landing-hero__showcase">
+                <div class="landing-hero__frame">
+                    <div class="landing-hero__frame-glow" aria-hidden="true"></div>
+                    <div class="landing-hero__frame-ring" aria-hidden="true"></div>
+                    <img
+                        src="{{ asset('images/throphy.png') }}"
+                        alt="Troféu Spidium Cup"
+                        class="landing-hero__trophy"
+                        width="736"
+                        height="1312"
+                    >
+                </div>
             </div>
 
             <div class="landing-hero__content">
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight">
+                <div class="landing-hero__badges">
+                    <span class="landing-hero__badge landing-hero__badge--live">
+                        <span class="landing-hero__badge-dot"></span>
+                        Temporada ativa
+                    </span>
+                    <span class="landing-hero__badge landing-hero__badge--org">
+                        LD_Speedruns
+                    </span>
+                </div>
+
+                <h1 class="landing-hero__title">
                     Bem-vindo à
                     <span class="text-brand-gradient">Spidium Cup</span>
                 </h1>
-                <p class="mt-3 max-w-lg text-sm text-brand-ice/60 leading-relaxed">
-                    O <strong class="text-brand-ice/80 font-semibold">Spidium Cup</strong> é o campeonato de futebol digital organizado por LD_Speedruns.
+
+                <p class="landing-hero__lead">
+                    O campeonato de futebol digital da comunidade. Acompanhe placares, classificação e artilheiros — e, após cada jogo, vote no <strong class="text-brand-ice/90 font-semibold">MVP</strong> e avalie os jogadores.
                 </p>
-                <p class="mt-2 max-w-lg text-sm text-brand-ice/60 leading-relaxed">
-                    Aqui você confere classificação, partidas, artilheiros e resultados ao vivo. Após cada jogo finalizado, também pode <strong class="text-brand-ice/80 font-semibold">votar no melhor em campo (MVP)</strong> e <strong class="text-brand-ice/80 font-semibold">dar nota de 0 a 10</strong> para os jogadores.
-                </p>
-                <div class="mt-5 sm:mt-6">
-                    <a href="#campeonatos" class="btn-brand w-full sm:w-auto text-sm">
-                        Ver campeonatos
+
+                @if ($stats['partidas'] > 0)
+                    <div class="landing-hero__stats">
+                        <div class="landing-hero__stat">
+                            <span class="landing-hero__stat-value">{{ $stats['partidas'] }}</span>
+                            <span class="landing-hero__stat-label">Jogos</span>
+                        </div>
+                        <div class="landing-hero__stat">
+                            <span class="landing-hero__stat-value">{{ $stats['times'] }}</span>
+                            <span class="landing-hero__stat-label">Times</span>
+                        </div>
+                        <div class="landing-hero__stat">
+                            <span class="landing-hero__stat-value">{{ $stats['campeonatos'] }}</span>
+                            <span class="landing-hero__stat-label">Edições</span>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="landing-hero__actions">
+                    <a href="#ultimas-partidas" class="btn-brand w-full sm:w-auto text-sm">
+                        Ver resultados
+                    </a>
+                    <a href="#campeonatos" class="btn-ghost w-full sm:w-auto text-sm">
+                        Campeonatos
                     </a>
                 </div>
             </div>
         </div>
+    </section>
+
+    {{-- Últimas partidas --}}
+    <section
+        id="ultimas-partidas"
+        class="mb-10 sm:mb-14"
+        x-data="{ openPartidas: false }"
+        x-effect="document.body.classList.toggle('overflow-hidden', openPartidas)"
+        @keydown.escape.window="openPartidas = false"
+    >
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-black text-brand-ice">Últimas partidas</h2>
+                <p class="mt-1 text-sm text-brand-ice/50">Os resultados mais recentes do Spidium Cup.</p>
+            </div>
+
+            @if ($todasPartidas->isNotEmpty())
+                <button
+                    type="button"
+                    @click="openPartidas = true"
+                    class="btn-ghost w-full sm:w-auto text-sm"
+                >
+                    Ver todas ({{ $todasPartidas->count() }})
+                </button>
+            @endif
+        </div>
+
+        @if ($ultimasPartidas->isEmpty())
+            <div class="section-card text-center py-12">
+                <div class="text-5xl mb-4">⚽</div>
+                <h3 class="text-xl font-bold mb-2">Nenhuma partida finalizada ainda</h3>
+                <p class="text-brand-ice/50 text-sm max-w-md mx-auto">
+                    Quando os jogos forem encerrados, os placares aparecerão aqui.
+                </p>
+            </div>
+        @else
+            <div class="space-y-3">
+                @foreach ($ultimasPartidas as $partida)
+                    @include('resultados.partials.card-partida', ['partida' => $partida])
+                @endforeach
+            </div>
+        @endif
+
+        {{-- Modal: todas as partidas --}}
+        <template x-teleport="body">
+            <div
+                x-show="openPartidas"
+                x-cloak
+                class="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-partidas-title"
+            >
+                <div
+                    @click="openPartidas = false"
+                    class="absolute inset-0 bg-brand-black/80 backdrop-blur-md"
+                    x-show="openPartidas"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                ></div>
+
+                <div
+                    class="relative w-full sm:max-w-2xl max-h-[90vh] flex flex-col bg-brand-surface border border-brand-ice/10 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden"
+                    x-show="openPartidas"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
+                    @click.stop
+                >
+                    <div class="flex items-center justify-between gap-4 p-5 sm:p-6 border-b border-brand-ice/10 bg-gradient-to-r from-brand-purple/10 to-transparent shrink-0">
+                        <div>
+                            <h2 id="modal-partidas-title" class="text-xl font-bold">Todas as partidas</h2>
+                            <p class="text-sm text-brand-ice/50 mt-0.5">{{ $todasPartidas->count() }} jogos finalizados</p>
+                        </div>
+                        <button
+                            type="button"
+                            @click="openPartidas = false"
+                            class="min-h-[44px] min-w-[44px] rounded-xl bg-brand-ice/10 border border-brand-ice/10 hover:bg-brand-ice/15 transition text-lg leading-none"
+                            aria-label="Fechar"
+                        >
+                            ✕
+                        </button>
+                    </div>
+
+                    <div class="overflow-y-auto p-4 sm:p-6 space-y-3">
+                        @foreach ($todasPartidas as $partida)
+                            @include('resultados.partials.card-partida', ['partida' => $partida])
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </template>
     </section>
 
     {{-- Sobre o campeonato --}}
