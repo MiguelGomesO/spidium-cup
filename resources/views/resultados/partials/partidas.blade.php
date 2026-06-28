@@ -20,6 +20,14 @@
                     @if ($partida->fase)
                         <p class="text-center text-xs text-brand-urban mt-3 capitalize">{{ str_replace('_', ' ', $partida->fase) }}</p>
                     @endif
+
+                    @if ($partida->isFinalizada())
+                        <div class="mt-4 text-center">
+                            <a href="{{ route('partidas.show', $partida) }}" class="inline-flex items-center justify-center min-h-[44px] px-4 rounded-xl text-sm font-medium bg-brand-orange/15 border border-brand-orange/30 text-brand-orange-sand hover:bg-brand-orange/25 transition">
+                                🏆 Votar no MVP
+                            </a>
+                        </div>
+                    @endif
                 </div>
             @endforeach
         </div>

@@ -16,12 +16,15 @@ export default {
             },
             colors: {
                 brand: {
+                    /* Primárias */
                     blue: '#031D76',
                     orange: '#FF5A00',
                     purple: '#4E2672',
                     ice: '#D1DAFF',
                     black: '#060C30',
+                    /* Superfície — mix oficial azul + preto */
                     surface: '#0A1548',
+                    /* Complementares */
                     'blue-light': '#A6BFFF',
                     'orange-sand': '#FFC49A',
                     lilac: '#8D79A6',

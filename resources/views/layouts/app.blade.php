@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#060c30">
+    <meta name="theme-color" content="#060C30">
     <title>@yield('title', 'Spidium Cup')</title>
     <link rel="icon" type="image/png" href="{{ asset('images/ldpng.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -91,6 +91,8 @@
             <main class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-y-contain p-4 sm:p-6 pb-[calc(1rem+var(--safe-bottom))]">
                 @yield('content')
             </main>
+
+            <x-site-footer />
         </div>
     </div>
 

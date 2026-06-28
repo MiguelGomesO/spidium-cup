@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\CalculaEstatisticasCampeonato;
 use App\Models\Campeonato;
+use App\Models\Jogador;
 use App\Models\Partida;
+use App\Models\Time;
 
 class ResultadosController extends Controller
 {
@@ -18,10 +20,20 @@ class ResultadosController extends Controller
                 'partidas',
                 'partidas as partidas_finalizadas_count' => fn ($q) => $q->finalizadas(),
             ])
+            ->whereHas('partidas')
             ->latest()
+            ->limit(3)
             ->get();
 
-        return view('resultados.index', compact('campeonatos'));
+        return view('resultados.index', [
+            'campeonatos' => $campeonatos,
+            'stats' => [
+                'times' => Time::count(),
+                'partidas' => Partida::count(),
+                'jogadores' => Jogador::count(),
+                'campeonatos' => Campeonato::count(),
+            ],
+        ]);
     }
 
     public function show(Campeonato $campeonato)

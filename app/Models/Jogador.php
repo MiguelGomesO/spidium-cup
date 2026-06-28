@@ -83,6 +83,16 @@ class Jogador extends Model
         return $this->hasMany(ParticipacaoPartida::class);
     }
 
+    public function votosPartida()
+    {
+        return $this->hasMany(VotoPartida::class);
+    }
+
+    public function notasPublicasPartida()
+    {
+        return $this->hasMany(NotaPublicaPartida::class);
+    }
+
     public function scopeComEstatisticas($query)
     {
         return $query

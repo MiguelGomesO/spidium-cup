@@ -104,6 +104,16 @@ class Partida extends Model
         return $this->hasMany(ParticipacaoPartida::class);
     }
 
+    public function votos()
+    {
+        return $this->hasMany(VotoPartida::class);
+    }
+
+    public function notasPublicas()
+    {
+        return $this->hasMany(NotaPublicaPartida::class);
+    }
+
     public function campeonato()
     {
         return $this->belongsTo(Campeonato::class);

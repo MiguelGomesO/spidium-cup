@@ -1,4 +1,5 @@
 import './bootstrap';
+import './fingerprint';
 
 import Alpine from 'alpinejs';
 

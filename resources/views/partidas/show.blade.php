@@ -1,12 +1,18 @@
-﻿@extends('layouts.app')
+﻿@extends(auth()->check() ? 'layouts.app' : 'layouts.public')
+
+@section('title', $partida->timeCasa->nome . ' × ' . $partida->timeFora->nome)
 
 @section('content')
 
 <div class="max-w-4xl mx-auto mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-    <a href="{{ route('partidas.index') }}" class="inline-flex items-center min-h-[44px] text-sm text-brand-ice/60 hover:text-brand-ice transition">← Partidas</a>
-    <a href="{{ route('partidas.edit', $partida) }}" class="btn-ghost text-sm w-full sm:w-auto text-center">
-        Editar partida
-    </a>
+    @auth
+        <a href="{{ route('partidas.index') }}" class="inline-flex items-center min-h-[44px] text-sm text-brand-ice/60 hover:text-brand-ice transition">← Partidas</a>
+        <a href="{{ route('partidas.edit', $partida) }}" class="btn-ghost text-sm w-full sm:w-auto text-center">
+            Editar partida
+        </a>
+    @else
+        <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('resultados.index') }}" class="inline-flex items-center min-h-[44px] text-sm text-brand-ice/60 hover:text-brand-ice transition">← Voltar</a>
+    @endauth
 </div>
 
 @if (session('success'))
@@ -102,17 +108,20 @@
             {{ $partida->campeonato->nome ?? 'Amistoso' }}
         </p>
 
-        @if (! $partida->isFinalizada())
+        @auth
             <div class="flex flex-col sm:flex-row flex-wrap gap-3 mt-4">
-                <button @click="openGol = true" class="bg-green-600 hover:bg-green-500 transition px-4 py-2 rounded-xl font-medium">
+                <button @click="openGol = true" class="btn-asphalt px-4 py-2 text-sm">
                     📊 Adicionar eventos
                 </button>
 
-                <button @click="openFinalizar = true" class="bg-brand-orange hover:bg-brand-purple transition px-4 py-2 rounded-xl font-medium">
-                    🏁 Finalizar partida
-                </button>
+                @if (! $partida->isFinalizada())
+                    <button @click="openFinalizar = true" class="bg-brand-orange hover:bg-brand-purple transition px-4 py-2 rounded-xl font-medium">
+                        🏁 Finalizar partida
+                    </button>
+                @endif
             </div>
 
+            @if (! $partida->isFinalizada())
             <div class="mt-4 pt-4 border-t border-brand-ice/10">
                 <p class="text-xs text-brand-urban mb-2">Alterar status</p>
                 <div class="flex flex-wrap gap-2">
@@ -130,7 +139,8 @@
                     @endforeach
                 </div>
             </div>
-        @endif
+            @endif
+        @endauth
 
     </div>
 
@@ -183,9 +193,11 @@
                         </template>
                     </div>
 
+                    @auth
                     <button @click="deleteGol(e.id)" class="text-brand-orange hover:text-brand-orange-sand text-xs ml-2 opacity-60 hover:opacity-100 transition">
                         ✕
                     </button>
+                    @endauth
                 </div>
             </template>
 
@@ -206,8 +218,17 @@
         </div>
     </div>
 
-    @include('partidas.partials.desempenho-jogadores')
+    @if ($partida->isFinalizada())
+        @include('partidas.partials.votacao-mvp')
+        @include('partidas.partials.avaliacao-jogadores')
+    @else
+        <div class="section-card mt-6 text-center py-8">
+            <p class="text-3xl mb-2">🏆</p>
+            <p class="text-sm text-brand-ice/60">A votação de MVP e as notas dos jogadores estarão disponíveis quando a partida for finalizada.</p>
+        </div>
+    @endif
 
+    @auth
     <template x-if="openGol">
         <div class="fixed inset-0 z-[9999] flex items-center justify-center">
 
@@ -247,7 +268,7 @@
                     <div>
                         <label class="text-xs text-brand-ice/70">Time</label>
 
-                        <select name="time_id" x-model="time" class="w-full mt-1 bg-brand-ice/10 border border-brand-ice/10 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <select name="time_id" x-model="time" class="w-full mt-1 bg-brand-ice/10 border border-brand-ice/10 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-orange">
                             <option value="casa">{{ $partida->timeCasa->nome }}</option>
                             <option value="fora">{{ $partida->timeFora->nome }}</option>
                         </select>
@@ -255,7 +276,7 @@
 
                     <div>
                         <label class="text-xs text-brand-ice/70">Selecione o Evento</label>
-                        <select name="tipo" class="bg-gray-800 text-brand-ice w-full mt-1 border border-brand-ice/10 rounded px-3 py-2" x-model="tipo" @change="
+                        <select name="tipo" class="bg-brand-black/50 text-brand-ice w-full mt-1 border border-brand-ice/10 rounded px-3 py-2" x-model="tipo" @change="
                             if (tipo !== 'gol') {
                                 temAssistencia = false;
                             }
@@ -285,8 +306,8 @@
                     <div x-show="tipo === 'gol'">
                         <label class="mt-1 flex items-center gap-3 cursor-pointer select-none">
                             <input type="checkbox" x-model="temAssistencia" class="sr-only">
-                            <div class=" w-11 h-6 rounded-full relative transition" :class="temAssistencia ? 'bg-green-500' : 'bg-brand-ice/10'">
-                                <div class="h-5 w-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-all" :class="temAssistencia ? 'translate-x-5' : ''">
+                            <div class=" w-11 h-6 rounded-full relative transition" :class="temAssistencia ? 'bg-brand-orange' : 'bg-brand-ice/10'">
+                                <div class="h-5 w-5 bg-brand-ice rounded-full absolute top-0.5 left-0.5 transition-all" :class="temAssistencia ? 'translate-x-5' : ''">
                                 </div>
                             </div>
                             <span class="text-xs text-brand-ice/80">
@@ -317,14 +338,14 @@
                     <div>
                         <label class="text-xs text-brand-ice/70">Minuto</label>
 
-                        <input type="number" name="minuto" min="1" max="90" placeholder="Ex: 23" class="w-full mt-1 bg-brand-ice/10 border border-brand-ice/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="number" name="minuto" min="1" max="90" placeholder="Ex: 23" class="w-full mt-1 bg-brand-ice/10 border border-brand-ice/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-orange">
                     </div>
 
                     <div class="flex gap-2 pt-2">
                         <button type="button" @click="openGol = false" class="w-1/2 bg-brand-ice/10 hover:bg-brand-ice/15 py-2 rounded-lg text-sm transition">
                             Cancelar
                         </button>
-                        <button class="w-1/2 bg-green-600 hover:bg-green-700 py-2 rounded-lg text-sm font-semibold transition">
+                        <button class="w-1/2 btn-asphalt py-2 text-sm">
                             Salvar Gol
                         </button>
                     </div>
@@ -349,7 +370,7 @@
                     </h2>
 
                     <p class="text-sm text-brand-ice/60 mb-6">
-                        Após finalizar, os eventos e o placar não poderão mais ser alterados.
+                        A votação de MVP e as notas dos jogadores ficarão disponíveis para o público.
                     </p>
 
                     <div class="flex gap-3">
@@ -370,6 +391,7 @@
             </div>
         </div>
     </template>
+    @endauth
 </div>
 
 @endsection

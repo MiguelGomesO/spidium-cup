@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\CalculaNotasPublicas;
+use App\Http\Controllers\Concerns\CalculaVotacaoMvp;
 use App\Models\Partida;
 use App\Models\Campeonato;
 use App\Models\Jogador;
@@ -11,6 +13,7 @@ use Illuminate\Validation\Rule;
 
 class PartidaController extends Controller
 {
+    use CalculaNotasPublicas, CalculaVotacaoMvp;
     public function historico(Time $time)
     {
         $partidas = Partida::with(['timeCasa', 'timeFora'])
@@ -148,12 +151,24 @@ class PartidaController extends Controller
         $partida->load([
             'timeCasa.jogadores',
             'timeFora.jogadores',
+            'campeonato',
             'eventos.jogador',
             'eventos.assistencia',
             'participacoes',
         ]);
 
-        return view('partidas.show', compact('partida'));
+        $votacao = $this->estatisticasVotacao($partida);
+        $notas = $this->estatisticasNotasPublicas($partida);
+
+        return view('partidas.show', [
+            'partida' => $partida,
+            'votacaoRanking' => $votacao['ranking'],
+            'votacaoMvp' => $votacao['mvp'],
+            'votacaoTotal' => $votacao['total_votos'],
+            'votacaoIpJaVotou' => $votacao['ip_ja_votou'],
+            'notasMedias' => $notas['medias'],
+            'notasMinhas' => $notas['minhas_notas'],
+        ]);
     }
 
     public function finalizar(Partida $partida)
